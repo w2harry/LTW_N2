@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hồ sơ cá nhân - MomCare</title>
+  <link rel="stylesheet" href="{% load static %}{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% load static %}{% static 'css/auth.css' %}">
+  <style>
+    body {
+      background: #f1e2e4;
+      color: #232734;
+    }
+
+    .info-wrapper {
+      max-width: 980px;
+      margin: 18px auto 28px;
+      padding: 0 10px;
+    }
+
+    .info-card {
+      background: #fff;
+      border: 1px solid #e8d9e0;
+      border-radius: 12px;
+      box-shadow: 0 6px 22px rgba(34, 31, 43, 0.08);
+      padding: 14px 16px 6px;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .info-title {
+      font-size: 30px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #1f2534;
+      margin-bottom: 4px;
+    }
+
+    .info-subtitle {
+      font-size: 13px;
+      color: #7a8192;
+    }
+
+    .info-close {
+      border: none;
+      background: transparent;
+      color: #9ba2b2;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .info-user {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .info-user-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f2dce7;
+      color: #c95382;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .info-name {
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #1f2534;
+    }
+
+    .info-handle {
+      font-size: 13px;
+      color: #7e8698;
+      margin-top: 2px;
+    }
+
+    .edit-btn {
+      border: none;
+      border-radius: 10px;
+      height: 38px;
+      padding: 0 16px;
+      background: #e04f8b;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .info-table {
+      margin-top: 6px;
+      border-top: 1px solid #e8ebf2;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) 1.2fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 46px;
+      border-bottom: 1px solid #e8ebf2;
+      font-size: 14px;
+    }
+
+    .info-label {
+      color: #788094;
+    }
+
+    .info-value {
+      color: #222839;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .info-value-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .change-password-btn {
+      border: 1px solid #caafbe;
+      background: #f6ecf2;
+      border-radius: 8px;
+      color: #7f4762;
+      font-size: 12px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .modal-overlay-ui {
+      position: fixed;
+      inset: 0;
+      background: rgba(22, 24, 32, 0.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 14px;
+    }
+
+    .modal-overlay-ui.show {
+      display: flex;
+    }
+
+    .modal-ui-card {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e3d8df;
+      box-shadow: 0 12px 36px rgba(22, 24, 32, 0.22);
+      padding: 14px;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-ui-card.password {
+      max-width: 500px;
+      background: #f5e7ee;
+    }
+
+    .modal-ui-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-ui-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f2534;
+    }
+
+    .modal-ui-subtitle {
+      font-size: 12px;
+      color: #8a90a0;
+      margin-top: 2px;
+      margin-bottom: 8px;
+    }
+
+    .modal-ui-close {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      color: #9da4b2;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .form-block {
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2a3141;
+      margin-bottom: 6px;
+    }
+
+    .required-star {
+      color: #df4f75;
+      margin-left: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      border: 1px solid #dfe3ea;
+      border-radius: 8px;
+      height: 40px;
+      padding: 0 12px;
+      font-size: 14px;
+      color: #2b3140;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    .form-control[readonly] {
+      background: #f7f8fb;
+      color: #9aa1b1;
+    }
+
+    .form-help {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #a0a6b5;
+    }
+
+    .form-actions {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      min-width: 84px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #d8dce5;
+      background: #fff;
+      color: #5d6576;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      min-width: 84px;
+      height: 40px;
+      border-radius: 8px;
+      border: none;
+      background: #d3528b;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .password-input-wrap {
+      position: relative;
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #98a1b3;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0;
+    }
+
+    @media (max-width: 768px) {
+      .info-title {
+        font-size: 24px;
+      }
+
+      .info-name {
+        font-size: 22px;
+      }
+
+      .info-user {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .edit-btn {
+        width: 100%;
+      }
+
+      .info-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        padding: 8px 0;
+      }
+
+      .info-value {
+        justify-self: start;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="{% url 'landing' %}" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        MomCare
+      </a>
+
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Tìm kiếm bài viết">
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{% url 'landing' %}" class="nav-link">Trang chủ</a>
+        <a href="{% url 'forum' %}" class="nav-link">Diễn đàn</a>
+      </nav>
+
+      <div class="header-actions">
+        <div id="auth-buttons" class="auth-buttons">
+          <button class="btn-login" data-modal="auth-modal">Đăng nhập</button>
+        </div>
+
+        <div id="user-menu" class="user-menu" style="display: none;">
+          <button class="icon-btn" id="notification-btn" title="Thông báo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-badge">3</span>
+          </button>
+          <div class="user-dropdown">
+            <button class="user-avatar-btn" id="user-avatar-btn">
+              <div class="user-avatar" id="user-avatar-display">M</div>
+            </button>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <div class="dropdown-user-info">
+                <div class="dropdown-avatar" id="dropdown-avatar-display">M</div>
+                <div class="dropdown-user-name" id="user-name-display">Minh Anh</div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="{% url 'profile' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Trang cá nhân
+              </a>
+              <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                Quản trị
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item logout-item" id="logout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Đăng xuất
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="info-wrapper">
+    <section class="info-card">
+      <div class="info-header">
+        <div>
+          <div class="info-title">Hồ sơ cá nhân</div>
+          <div class="info-subtitle">Xem thông tin cá nhân của bạn</div>
+        </div>
+        <button class="info-close" type="button" id="close-info-page" data-href="{% url 'profile' %}">×</button>
+      </div>
+
+      <div class="info-user">
+        <div class="info-user-left">
+          <div class="info-avatar" id="profile-info-avatar">B</div>
+          <div>
+            <div class="info-name" id="profile-info-fullname">Bùi Ly</div>
+            <div class="info-handle" id="profile-info-username">@buily2025</div>
+          </div>
+        </div>
+        <button class="edit-btn" type="button" id="open-edit-info-modal">✎ Chỉnh sửa thông tin cá nhân</button>
+      </div>
+
+      <div class="info-table">
+        <div class="info-row">
+          <div class="info-label">Tên người dùng</div>
+          <div class="info-value" id="info-username-value">buily2025</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Họ và tên</div>
+          <div class="info-value" id="info-fullname-value">Bùi Ly</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Email</div>
+          <div class="info-value" id="info-email-value">buily@example.com</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Ngày sinh</div>
+          <div class="info-value">15/5/1995</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Giới tính</div>
+          <div class="info-value">Nữ</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Tỉnh/Thành phố</div>
+          <div class="info-value">TP. Hồ Chí Minh</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Số điện thoại</div>
+          <div class="info-value">0912345678</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Mật khẩu</div>
+          <div class="info-value">
+            <span class="info-value-group">
+              <span>************</span>
+              <button class="change-password-btn" type="button" id="open-change-password-modal">Đổi mật khẩu</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay-ui" id="edit-info-modal">
+    <div class="modal-ui-card" onclick="event.stopPropagation()">
+      <div class="modal-ui-head">
+        <div>
+          <div class="modal-ui-title">Chỉnh sửa thông tin cá nhân của bạn</div>
+        </div>
+        <button class="modal-ui-close" id="close-edit-info-modal" type="button">×</button>
+      </div>
+
+      <form id="edit-info-form">
+        <div class="form-block">
+          <label class="form-label" for="edit-username">Tên người dùng</label>
+          <input id="edit-username" class="form-control" type="text" value="buily2025" readonly>
+          <div class="form-help">Tên người dùng không thể thay đổi</div>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-fullname">Họ và tên <span class="required-star">*</span></label>
+          <input id="edit-fullname" class="form-control" type="text" value="Bùi Ly" required>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-email">Email <span class="required-star">*</span></label>
+          <input id="edit-email" class="form-control" type="email" value="buily@example.com" required>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-birthday">Ngày sinh <span class="required-star">*</span></label>
+          <input id="edit-birthday" class="form-control" type="date" value="1995-05-15" required>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-gender">Giới tính <span class="required-star">*</span></label>
+          <select id="edit-gender" class="form-control" required>
+            <option value="Nữ" selected>Nữ</option>
+            <option value="Nam">Nam</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-city">Tỉnh/Thành phố <span class="required-star">*</span></label>
+          <input id="edit-city" class="form-control" type="text" value="TP. Hồ Chí Minh" required>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-phone">Số điện thoại <span class="required-star">*</span></label>
+          <input id="edit-phone" class="form-control" type="tel" value="0912345678" maxlength="10" pattern="0[0-9]{9}" required>
+          <div class="form-help">Số điện thoại gồm 10 số, bắt đầu bằng số 0</div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="cancel-edit-info">Hủy</button>
+          <button type="submit" class="btn-primary">Cập nhật</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay-ui" id="change-password-modal">
+    <div class="modal-ui-card password" onclick="event.stopPropagation()">
+      <div class="modal-ui-head">
+        <div class="modal-ui-title">Đổi mật khẩu</div>
+        <button class="modal-ui-close" id="close-change-password-modal" type="button">×</button>
+      </div>
+      <div class="modal-ui-subtitle">Mật khẩu của bạn phải có tối thiểu 6 ký tự.</div>
+
+      <form id="change-password-form">
+        <div class="form-block password-input-wrap">
+          <input id="current-password" class="form-control" type="password" placeholder="Mật khẩu hiện tại" required>
+          <button class="toggle-pass-btn" type="button" data-target="current-password">👁</button>
+        </div>
+        <div class="form-block password-input-wrap">
+          <input id="new-password" class="form-control" type="password" placeholder="Mật khẩu mới" required>
+          <button class="toggle-pass-btn" type="button" data-target="new-password">👁</button>
+        </div>
+        <div class="form-block password-input-wrap">
+          <input id="confirm-password" class="form-control" type="password" placeholder="Xác nhận mật khẩu mới" required>
+          <button class="toggle-pass-btn" type="button" data-target="confirm-password">👁</button>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width:100%; margin-top: 4px;">Đổi mật khẩu</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="{% load static %}{% static 'js/auth.js' %}"></script>
+  <script>
+    const closeInfoPageBtn = document.getElementById('close-info-page');
+    const openEditInfoBtn = document.getElementById('open-edit-info-modal');
+    const openChangePasswordBtn = document.getElementById('open-change-password-modal');
+    const editInfoModal = document.getElementById('edit-info-modal');
+    const changePasswordModal = document.getElementById('change-password-modal');
+    const closeEditInfoBtn = document.getElementById('close-edit-info-modal');
+    const closeChangePasswordBtn = document.getElementById('close-change-password-modal');
+    const cancelEditInfoBtn = document.getElementById('cancel-edit-info');
+    const editInfoForm = document.getElementById('edit-info-form');
+    const changePasswordForm = document.getElementById('change-password-form');
+    const togglePasswordButtons = document.querySelectorAll('.toggle-pass-btn');
+
+    const infoFullnameValue = document.getElementById('info-fullname-value');
+    const profileInfoFullname = document.getElementById('profile-info-fullname');
+    const infoEmailValue = document.getElementById('info-email-value');
+    const infoUsernameValue = document.getElementById('info-username-value');
+    const profileInfoHandle = document.getElementById('profile-info-username');
+    const profileInfoAvatar = document.getElementById('profile-info-avatar');
+
+    function openModal(el) {
+      el.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(el) {
+      el.classList.remove('show');
+      if (!editInfoModal.classList.contains('show') && !changePasswordModal.classList.contains('show')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    closeInfoPageBtn.addEventListener('click', function () {
+      window.location.href = closeInfoPageBtn.dataset.href;
+    });
+
+    openEditInfoBtn.addEventListener('click', function () {
+      document.getElementById('edit-fullname').value = infoFullnameValue.textContent.trim();
+      document.getElementById('edit-email').value = infoEmailValue.textContent.trim();
+      document.getElementById('edit-username').value = infoUsernameValue.textContent.trim();
+      openModal(editInfoModal);
+    });
+
+    openChangePasswordBtn.addEventListener('click', function () {
+      changePasswordForm.reset();
+      openModal(changePasswordModal);
+    });
+
+    closeEditInfoBtn.addEventListener('click', function () {
+      closeModal(editInfoModal);
+    });
+
+    closeChangePasswordBtn.addEventListener('click', function () {
+      closeModal(changePasswordModal);
+    });
+
+    cancelEditInfoBtn.addEventListener('click', function () {
+      closeModal(editInfoModal);
+    });
+
+    editInfoModal.addEventListener('click', function () {
+      closeModal(editInfoModal);
+    });
+
+    changePasswordModal.addEventListener('click', function () {
+      closeModal(changePasswordModal);
+    });
+
+    editInfoForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const fullname = document.getElementById('edit-fullname').value.trim();
+      const email = document.getElementById('edit-email').value.trim();
+      const username = document.getElementById('edit-username').value.trim();
+
+      infoFullnameValue.textContent = fullname;
+      profileInfoFullname.textContent = fullname;
+      infoEmailValue.textContent = email;
+      infoUsernameValue.textContent = username;
+      profileInfoHandle.textContent = '@' + username;
+      profileInfoAvatar.textContent = fullname.charAt(0).toUpperCase();
+
+      const user = JSON.parse(localStorage.getItem('momcare_user') || '{}');
+      user.fullName = fullname;
+      user.name = fullname;
+      user.username = username;
+      user.email = email;
+      localStorage.setItem('momcare_user', JSON.stringify(user));
+
+      closeModal(editInfoModal);
+      syncUserDisplay();
+    });
+
+    changePasswordForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      if (newPassword.length < 6) {
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        return;
+      }
+
+      closeModal(changePasswordModal);
+    });
+
+    togglePasswordButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        input.type = input.type === 'password' ? 'text' : 'password';
+      });
+    });
+
+    function syncUserDisplay() {
+      const user = JSON.parse(localStorage.getItem('momcare_user') || '{}');
+      const fallbackName = document.getElementById('profile-info-fullname').textContent.trim();
+      const rawName = (user.fullName || user.name || user.username || '').trim();
+      const displayName = rawName.length > 1 ? rawName : fallbackName;
+      const initial = displayName.charAt(0).toUpperCase();
+      const username = (user.username || user.name || 'buily2025').replace(/\s+/g, '').toLowerCase();
+
+      document.getElementById('profile-info-fullname').textContent = displayName;
+      document.getElementById('info-fullname-value').textContent = displayName;
+      document.getElementById('profile-info-avatar').textContent = initial;
+      document.getElementById('profile-info-username').textContent = '@' + username;
+      document.getElementById('info-username-value').textContent = username;
+      document.getElementById('info-email-value').textContent = user.email || (username + '@example.com');
+
+      const headerAvatar = document.getElementById('user-avatar-display');
+      const dropdownAvatar = document.getElementById('dropdown-avatar-display');
+      const dropdownName = document.getElementById('user-name-display');
+      if (headerAvatar) headerAvatar.textContent = initial;
+      if (dropdownAvatar) dropdownAvatar.textContent = initial;
+      if (dropdownName) dropdownName.textContent = displayName;
+    }
+
+    document.addEventListener('DOMContentLoaded', syncUserDisplay);
+  </script>
+</body>
+</html>

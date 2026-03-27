@@ -1,0 +1,189 @@
+{% extends 'auth/admin_base.html' %}
+
+{% block title %}Quản lý danh mục - MomCare{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý danh mục</h1>
+    </div>
+    <button class="btn-primary" type="button" data-open-category-modal="category-form" data-mode="create">+ Thêm danh mục</button>
+  </div>
+
+  <section class="duo-metric-grid">
+    <article class="duo-metric-card">
+      <div class="metric-label">Tổng danh mục</div>
+      <div class="number">8</div>
+    </article>
+    <article class="duo-metric-card">
+      <div class="metric-label">Tổng bài viết</div>
+      <div class="number">793</div>
+    </article>
+  </section>
+
+  <section class="category-grid">
+    <article class="category-card" data-category-name="Mang thai & phát triển" data-category-description="Thảo luận về thai kỳ, phát triển của bé và các câu hỏi liên quan." data-post-count="245">
+      <h3>Mang thai & phát triển</h3>
+      <p>Thảo luận về thai kỳ, phát triển của bé và các câu hỏi liên quan.</p>
+      <div class="category-meta">245 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Dinh dưỡng mẹ bầu" data-category-description="Chế độ ăn uống, vitamin và các lưu ý cần thiết cho mẹ bầu." data-post-count="138">
+      <h3>Dinh dưỡng mẹ bầu</h3>
+      <p>Chế độ ăn uống, vitamin và các lưu ý cần thiết cho mẹ bầu.</p>
+      <div class="category-meta">138 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Chuẩn bị sinh nở" data-category-description="Kinh nghiệm đi sinh, hồ sơ bệnh viện và chuẩn bị tâm lý." data-post-count="96">
+      <h3>Chuẩn bị sinh nở</h3>
+      <p>Kinh nghiệm đi sinh, hồ sơ bệnh viện và chuẩn bị tâm lý.</p>
+      <div class="category-meta">96 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Chăm sóc sau sinh" data-category-description="Phục hồi sức khỏe, chăm con và cân bằng cảm xúc sau sinh." data-post-count="121">
+      <h3>Chăm sóc sau sinh</h3>
+      <p>Phục hồi sức khỏe, chăm con và cân bằng cảm xúc sau sinh.</p>
+      <div class="category-meta">121 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Hỏi đáp bác sĩ" data-category-description="Khu vực hỏi đáp các vấn đề chuyên môn cùng bác sĩ MomCare." data-post-count="84">
+      <h3>Hỏi đáp bác sĩ</h3>
+      <p>Khu vực hỏi đáp các vấn đề chuyên môn cùng bác sĩ MomCare.</p>
+      <div class="category-meta">84 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Nuôi con sơ sinh" data-category-description="Giấc ngủ, bú mẹ, tắm bé và lịch chăm sóc trong 12 tháng đầu." data-post-count="61">
+      <h3>Nuôi con sơ sinh</h3>
+      <p>Giấc ngủ, bú mẹ, tắm bé và lịch chăm sóc trong 12 tháng đầu.</p>
+      <div class="category-meta">61 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Sức khỏe tinh thần" data-category-description="Chia sẻ áp lực, stress thai kỳ và giải pháp hỗ trợ tâm lý." data-post-count="31">
+      <h3>Sức khỏe tinh thần</h3>
+      <p>Chia sẻ áp lực, stress thai kỳ và giải pháp hỗ trợ tâm lý.</p>
+      <div class="category-meta">31 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+    <article class="category-card" data-category-name="Kiến thức cộng đồng" data-category-description="Bài viết tổng hợp kinh nghiệm thực tế từ thành viên MomCare." data-post-count="17">
+      <h3>Kiến thức cộng đồng</h3>
+      <p>Bài viết tổng hợp kinh nghiệm thực tế từ thành viên MomCare.</p>
+      <div class="category-meta">17 bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category">Xóa</button></div>
+    </article>
+  </section>
+
+  <div class="category-modal-backdrop" id="category-modal-backdrop" hidden></div>
+
+  <section class="category-modal" data-category-modal="category-form" hidden>
+    <div class="category-modal-head">
+      <h2 class="category-modal-title" id="category-modal-title">Thêm danh mục</h2>
+      <button type="button" class="category-modal-close" data-close-category-modal aria-label="Đóng">×</button>
+    </div>
+
+    <form class="category-form" id="category-form">
+      <label class="category-field">
+        <span>Tên danh mục<strong>*</strong></span>
+        <input id="category-name-input" type="text" placeholder="Nhập tên danh mục" required>
+      </label>
+
+      <label class="category-field">
+        <span>Mô tả</span>
+        <textarea id="category-desc-input" placeholder="Nhập mô tả danh mục"></textarea>
+      </label>
+
+      <div class="category-info-soft" id="category-create-note">Mã danh mục sẽ được tạo tự động</div>
+      <div class="category-info-warn" id="category-edit-note" hidden>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>
+        <span id="category-edit-note-text">Lưu ý: Danh mục này đang có 0 bài viết.</span>
+      </div>
+
+      <div class="category-modal-actions">
+        <button type="button" class="category-btn category-btn-cancel" data-close-category-modal>Hủy</button>
+        <button type="submit" class="category-btn category-btn-save">Lưu</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="category-confirm-modal" data-category-modal="delete-category" hidden>
+    <div class="category-confirm-icon">?</div>
+    <h3>Bạn có chắc chắn muốn xóa?</h3>
+    <div class="category-confirm-actions">
+      <button type="button" class="category-confirm-btn category-confirm-btn-primary" data-close-category-modal>Xác nhận</button>
+      <button type="button" class="category-confirm-btn category-confirm-btn-ghost" data-close-category-modal>Hủy</button>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var backdrop = document.getElementById('category-modal-backdrop');
+      var openButtons = document.querySelectorAll('[data-open-category-modal]');
+      var closeButtons = document.querySelectorAll('[data-close-category-modal]');
+      var modals = document.querySelectorAll('[data-category-modal]');
+      var form = document.getElementById('category-form');
+      var title = document.getElementById('category-modal-title');
+      var nameInput = document.getElementById('category-name-input');
+      var descInput = document.getElementById('category-desc-input');
+      var createNote = document.getElementById('category-create-note');
+      var editNote = document.getElementById('category-edit-note');
+      var editNoteText = document.getElementById('category-edit-note-text');
+
+      function closeAllCategoryModals() {
+        modals.forEach(function (modal) {
+          modal.hidden = true;
+        });
+        backdrop.hidden = true;
+        document.body.classList.remove('admin-modal-open');
+      }
+
+      openButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          var target = button.getAttribute('data-open-category-modal');
+          var mode = button.getAttribute('data-mode');
+          var modal = document.querySelector('[data-category-modal="' + target + '"]');
+          var card = button.closest('.category-card');
+
+          closeAllCategoryModals();
+
+          if (target === 'category-form') {
+            if (mode === 'edit' && card) {
+              title.textContent = 'Chỉnh sửa danh mục';
+              nameInput.value = card.getAttribute('data-category-name') || '';
+              descInput.value = card.getAttribute('data-category-description') || '';
+              createNote.hidden = true;
+              editNote.hidden = false;
+              editNoteText.textContent = 'Lưu ý: Danh mục này đang có ' + (card.getAttribute('data-post-count') || '0') + ' bài viết.';
+            } else {
+              title.textContent = 'Thêm danh mục';
+              form.reset();
+              createNote.hidden = false;
+              editNote.hidden = true;
+            }
+          }
+
+          if (modal) {
+            modal.hidden = false;
+            backdrop.hidden = false;
+            document.body.classList.add('admin-modal-open');
+          }
+        });
+      });
+
+      closeButtons.forEach(function (button) {
+        button.addEventListener('click', closeAllCategoryModals);
+      });
+
+      backdrop.addEventListener('click', closeAllCategoryModals);
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          closeAllCategoryModals();
+        }
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        closeAllCategoryModals();
+      });
+    })();
+  </script>
+{% endblock %}

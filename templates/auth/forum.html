@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MomCare - Diễn đàn</title>
+  <link rel="stylesheet" href="{% load static %}{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% load static %}{% static 'css/auth.css' %}">
+  <style>
+    .verify-trigger {
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 50%;
+      background: #f4d2df;
+      color: #c9507f;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .verify-trigger:hover {
+      background: #efbfd2;
+    }
+
+    .verify-trigger svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .verify-trigger.verified {
+      background: #f5d8e4;
+      color: #b83a6f;
+      cursor: default;
+    }
+
+    .review-approved {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      color: #b83a6f;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .review-approved.show {
+      display: inline-flex;
+    }
+
+    .review-approved-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f5d8e4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #b83a6f;
+      flex-shrink: 0;
+    }
+
+    .review-modal-card {
+      width: min(560px, 96vw);
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #eecfdb;
+      box-shadow: 0 22px 50px rgba(32, 17, 26, 0.25);
+      overflow: hidden;
+    }
+
+    .review-modal-head {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid #f0dce4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .review-modal-title {
+      margin: 0;
+      font-size: 22px;
+      color: #1f2430;
+      font-weight: 700;
+    }
+
+    .review-modal-close {
+      border: none;
+      background: transparent;
+      font-size: 24px;
+      line-height: 1;
+      color: #70788a;
+      cursor: pointer;
+    }
+
+    .review-modal-body {
+      padding: 16px 20px 14px;
+    }
+
+    .review-hint {
+      margin: 0 0 12px;
+      color: #626d80;
+      font-size: 14px;
+    }
+
+    .review-reason-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .review-reason-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #ead6df;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #2f3544;
+      background: #fff;
+    }
+
+    .review-reason-item input {
+      accent-color: #c9507f;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    .review-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 20px 18px;
+    }
+
+    .review-btn {
+      min-width: 120px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid #d9dce4;
+      background: #fff;
+      color: #2e3444;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .review-btn.primary {
+      border-color: #c9507f;
+      background: #c9507f;
+      color: #fff;
+    }
+
+    .post-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 28, 34, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 16px;
+    }
+
+    .post-modal-overlay.show {
+      display: flex;
+    }
+
+    .post-modal {
+      width: 100%;
+      max-width: 760px;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 12px 36px rgba(16, 18, 26, 0.22);
+      border: 1px solid #ead6dd;
+      padding: 14px 16px 16px;
+    }
+
+    .post-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .post-modal-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2430;
+    }
+
+    .post-modal-close {
+      border: none;
+      background: transparent;
+      color: #6f7787;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .edit-mode {
+      margin-bottom: 10px;
+    }
+
+    .edit-mode-label,
+    .field-label {
+      display: block;
+      font-size: 14px;
+      color: #2f3544;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .mode-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      border: 1px solid #dcdee7;
+      border-radius: 10px;
+      height: 42px;
+      background: #fff;
+      color: #71798a;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mode-btn.active {
+      border-color: #ce80a5;
+      background: #f1cfe2;
+      color: #a84775;
+    }
+
+    .mode-note {
+      background: #f0e8ee;
+      color: #7d6674;
+      border-radius: 8px;
+      font-size: 13px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+    }
+
+    .field-block {
+      margin-bottom: 10px;
+    }
+
+    .field-control,
+    .field-area,
+    .field-select {
+      width: 100%;
+      border: 1px solid #e2d3db;
+      border-radius: 10px;
+      background: #f6eef3;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #33394a;
+      font-family: inherit;
+    }
+
+    .field-area {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .field-error {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #df4f75;
+      font-style: italic;
+    }
+
+    .upload-box {
+      margin-top: 10px;
+      border: 2px dashed #d3d7e0;
+      border-radius: 10px;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #778093;
+      background: #faf8fb;
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-modal {
+      min-width: 120px;
+      height: 42px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #d6dbe6;
+      background: #fff;
+      color: #2e3444;
+    }
+
+    .btn-modal-primary {
+      border-color: #b3567d;
+      background: #b3567d;
+      color: #fff;
+    }
+
+    .post-options {
+      margin-left: auto;
+      position: relative;
+    }
+
+    .post-options-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      background: #f5eef2;
+      color: #7a6270;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .post-options-menu {
+      position: absolute;
+      top: 34px;
+      right: 0;
+      min-width: 146px;
+      background: #fff;
+      border: 1px solid #e9d6df;
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(20, 19, 26, 0.18);
+      padding: 6px;
+      display: none;
+      z-index: 50;
+    }
+
+    .post-options-menu.show {
+      display: grid;
+      gap: 4px;
+    }
+
+    .post-options-item {
+      border: none;
+      background: transparent;
+      padding: 8px 10px;
+      text-align: left;
+      border-radius: 8px;
+      color: #2f3544;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .post-options-item:hover {
+      background: #f8edf2;
+    }
+
+    .post-options-item.danger {
+      color: #d04763;
+    }
+
+    .report-modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(19, 22, 28, 0.45);
+      z-index: 1600;
+      padding: 14px;
+    }
+
+    .report-modal-overlay.show {
+      display: flex;
+    }
+
+    .report-modal {
+      width: min(320px, calc(100vw - 22px));
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #dfe5e2;
+      overflow: hidden;
+      box-shadow: 0 18px 36px rgba(19, 20, 23, 0.25);
+    }
+
+    .report-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e8eceb;
+    }
+
+    .report-modal-title {
+      margin: 0;
+      font-size: 23px;
+      color: #121722;
+      font-weight: 700;
+    }
+
+    .report-back-btn {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #39404d;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .report-modal-body {
+      padding: 10px 0 8px;
+    }
+
+    .report-modal-note {
+      margin: 0;
+      padding: 0 14px 8px;
+      color: #9ba2ab;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .report-reason-btn {
+      width: 100%;
+      border: none;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      color: #232a37;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .report-reason-btn:hover {
+      background: #f7f9f8;
+    }
+
+    .report-reason-btn .arrow {
+      color: #4b5361;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .report-submit-content {
+      padding: 12px 14px 14px;
+    }
+
+    .report-selected-reason {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #1d2532;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+
+    .report-selected-reason .dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f23a2b;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .report-submit-btn {
+      width: 100%;
+      height: 34px;
+      border: none;
+      border-radius: 9px;
+      background: #e8d7df;
+      color: #b2567e;
+      font-weight: 700;
+      font-size: 23px;
+      cursor: pointer;
+    }
+
+    .report-success-card {
+      width: min(320px, calc(100vw - 22px));
+      background: #fff;
+      border: 1px solid #dfe5e2;
+      border-radius: 12px;
+      text-align: center;
+      padding: 16px 14px 10px;
+      box-shadow: 0 18px 36px rgba(19, 20, 23, 0.25);
+    }
+
+    .report-success-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      border: 1.6px solid #c6688d;
+      color: #c6688d;
+      font-size: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .report-success-card p {
+      margin: 0;
+      color: #111827;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="#" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        MomCare
+      </a>
+
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Tìm kiếm bài viết">
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{% url 'landing' %}" class="nav-link">Trang chủ</a>
+        <a href="{% url 'forum' %}" class="nav-link active">Diễn đàn</a>
+      </nav>
+
+      <div class="header-actions">
+        <div id="auth-buttons" class="auth-buttons">
+          <button class="btn-login" data-modal="auth-modal">Đăng nhập</button>
+        </div>
+        <div id="user-menu" class="user-menu" style="display: none;">
+          <button class="icon-btn" id="notification-btn" title="Thông báo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-badge">3</span>
+          </button>
+          <div class="user-dropdown">
+            <button class="user-avatar-btn" id="user-avatar-btn">
+              <div class="user-avatar" id="user-avatar-display">M</div>
+            </button>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <div class="dropdown-user-info">
+                <div class="dropdown-avatar" id="dropdown-avatar-display">M</div>
+                <div class="dropdown-user-name" id="user-name-display">Minh Anh</div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="{% url 'profile' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Trang cá nhân
+              </a>
+              <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                Quản trị
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item logout-item" id="logout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Đăng xuất
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <!-- Left Column - Posts -->
+    <div class="content-area">
+      <!-- Create Post -->
+      <div class="create-post">
+        <input type="text" class="create-post-input" placeholder="Tạo bài đăng của bạn" id="open-create-post-input" readonly>
+        <div class="create-post-actions">
+          <div class="filter-tabs">
+            <button class="filter-tab active">Mới nhất</button>
+            <button class="filter-tab">Đề xuất</button>
+          </div>
+          <button class="btn-post" type="button" id="open-create-post-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            Đăng bài chia sẻ
+          </button>
+        </div>
+      </div>
+
+      <!-- Post 1 -->
+      <article class="post-card" data-post-owner="true" data-post-title="Sau sinh 3 tháng có kinh từ tuần đầu sau" data-post-content="Sau sinh 3 tháng có kinh từ tuần đầu sau sinh. Tháng thứ 2 vẫn đều đúng ngày, nhưng sang tháng thứ 3 lại lệch chu kỳ và sau kỳ kinh có ra dịch màu sẫm. Em hơi lo lắng, không biết tình trạng này có bình thường sau sinh không ạ?" data-post-category="sau-sinh">
+        <div class="post-header">
+          <div class="post-avatar pink">B</div>
+          <div class="post-user-info">
+            <div class="post-username">
+              Bùi Ly
+              <button type="button" class="verify-trigger" data-review-target="forum-review-1" aria-label="Kiểm định bài viết">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="post-time">1 giờ trước</div>
+            <div class="review-approved" id="forum-review-1">
+              <span class="review-approved-icon">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </span>
+              Đã được kiểm duyệt bởi chuyên gia
+            </div>
+          </div>
+          <div class="post-options">
+            <button class="post-options-btn" type="button" aria-label="Tùy chọn bài viết">⋮</button>
+            <div class="post-options-menu">
+              <button class="post-options-item" type="button" data-post-action="edit">Sửa bài viết</button>
+              <button class="post-options-item danger" type="button" data-post-action="delete">Xóa bài viết</button>
+              <button class="post-options-item" type="button" data-post-action="report">Báo cáo bài viết</button>
+            </div>
+          </div>
+        </div>
+        <h3 class="post-title">Sau sinh 3 tháng có kinh từ tuần đầu sau</h3>
+        <p class="post-content">
+          Sau sinh 3 tháng có kinh từ tuần đầu sau sinh. Tháng thứ 2 vẫn đều đúng ngày, nhưng sang tháng thứ 3 lại lệch chu kỳ và sau kỳ kinh có ra dịch màu sẫm. Em hơi lo lắng, không biết tình trạng này có bình thường sau sinh không ạ?
+        </p>
+        <div class="post-actions">
+          <div class="post-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            4.5K
+          </div>
+          <div class="post-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            Chia sẻ
+          </div>
+          <div class="post-action" data-modal="post-detail-modal" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            1
+          </div>
+        </div>
+      </article>
+
+      <!-- Post 2 -->
+      <article class="post-card" data-post-owner="false" data-post-title="Dịch hồng nhạt, chậm kinh 15 ngày, liệu có thai?" data-post-content="Em bị chậm kinh khoảng 15 ngày, có ra dịch hồng nhạt và cơ thể hơi mệt. Em đã thử que 2 lần, kết quả chưa rõ ràng nên rất bối rối. Các mẹ có kinh nghiệm cho em xin lời khuyên với ạ." data-post-category="hoi-dap">
+        <div class="post-header">
+          <div class="post-avatar blue">H</div>
+          <div class="post-user-info">
+            <div class="post-username">
+              Hồ Ly
+              <button type="button" class="verify-trigger" data-review-target="forum-review-2" aria-label="Kiểm định bài viết">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="post-time">1 ngày trước</div>
+            <div class="review-approved" id="forum-review-2">
+              <span class="review-approved-icon">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </span>
+              Đã được kiểm duyệt bởi chuyên gia
+            </div>
+          </div>
+          <div class="post-options">
+            <button class="post-options-btn" type="button" aria-label="Tùy chọn bài viết">⋮</button>
+            <div class="post-options-menu">
+              <button class="post-options-item" type="button" data-post-action="edit">Sửa bài viết</button>
+              <button class="post-options-item danger" type="button" data-post-action="delete">Xóa bài viết</button>
+              <button class="post-options-item" type="button" data-post-action="report">Báo cáo bài viết</button>
+            </div>
+          </div>
+        </div>
+        <h3 class="post-title">Dịch hồng nhạt, chậm kinh 15 ngày, liệu có thai?</h3>
+        <p class="post-content">
+          Em bị chậm kinh khoảng 15 ngày, có ra dịch hồng nhạt và cơ thể hơi mệt. Em đã thử que 2 lần, kết quả chưa rõ ràng nên rất bối rối. Các mẹ có kinh nghiệm cho em xin lời khuyên với ạ.
+        </p>
+        <div class="post-actions">
+          <div class="post-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            4.5K
+          </div>
+          <div class="post-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            Chia sẻ
+          </div>
+          <div class="post-action" data-modal="post-detail-modal" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            0
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Danh mục</h3>
+        <div class="category-list">
+          <div class="category-item active">
+            <span class="category-dot pink"></span>
+            <span class="category-name">Tương tác với bầu</span>
+            <span class="category-count">2.5k</span>
+          </div>
+          <div class="category-item">
+            <span class="category-dot blue"></span>
+            <span class="category-name">Tư vấn bác sĩ</span>
+            <span class="category-count">800</span>
+          </div>
+          <div class="category-item">
+            <span class="category-dot green"></span>
+            <span class="category-name">Chăm sóc thai kỳ</span>
+            <span class="category-count">1.2k</span>
+          </div>
+          <div class="category-item">
+            <span class="category-dot orange"></span>
+            <span class="category-name">Dinh dưỡng</span>
+            <span class="category-count">900</span>
+          </div>
+          <div class="category-item">
+            <span class="category-dot purple"></span>
+            <span class="category-name">Kiến thức nuôi con</span>
+            <span class="category-count">750</span>
+          </div>
+          <div class="category-item">
+            <span class="category-dot pink"></span>
+            <span class="category-name">Bảo vệ sơ sinh</span>
+            <span class="category-count">450</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Bài viết nổi bật</h3>
+        <div class="category-list">
+          <div class="category-item">
+            <span class="category-name">5 dấu hiệu mang thai sớm</span>
+          </div>
+          <div class="category-item">
+            <span class="category-name">Chế độ ăn cho mẹ bầu</span>
+          </div>
+          <div class="category-item">
+            <span class="category-name">Cách chăm sóc trẻ sơ sinh</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'auth/login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'auth/forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <div id="review-reason-modal" class="modal-overlay">
+    <div class="review-modal-card" onclick="event.stopPropagation()">
+      <div class="review-modal-head">
+        <h2 class="review-modal-title">Chọn lý do kiểm định</h2>
+        <button class="review-modal-close" type="button" id="close-review-modal" aria-label="Đóng">×</button>
+      </div>
+      <div class="review-modal-body">
+        <p class="review-hint">Vui lòng chọn ít nhất một lý do để hoàn tất kiểm định bài viết.</p>
+        <div class="review-reason-list">
+          <label class="review-reason-item">
+            <input type="checkbox" name="review_reason" value="medical">
+            <span>Nội dung có thông tin chuyên môn chính xác</span>
+          </label>
+          <label class="review-reason-item">
+            <input type="checkbox" name="review_reason" value="safe">
+            <span>Nội dung an toàn và không gây hiểu nhầm cho mẹ bầu</span>
+          </label>
+          <label class="review-reason-item">
+            <input type="checkbox" name="review_reason" value="helpful">
+            <span>Nội dung hữu ích cho cộng đồng MomCare</span>
+          </label>
+        </div>
+      </div>
+      <div class="review-modal-actions">
+        <button type="button" class="review-btn" id="cancel-review-modal">Hủy</button>
+        <button type="button" class="review-btn primary" id="confirm-review-modal">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="post-modal-overlay" id="create-post-modal">
+    <div class="post-modal" onclick="event.stopPropagation()">
+      <div class="post-modal-head">
+        <h2 class="post-modal-title">Thêm bài viết</h2>
+        <button class="post-modal-close" id="close-create-post-modal" type="button">×</button>
+      </div>
+
+      <div class="edit-mode">
+        <label class="edit-mode-label">Chế độ hiển thị</label>
+        <div class="mode-group">
+          <button type="button" class="mode-btn" id="create-mode-public">Công khai</button>
+          <button type="button" class="mode-btn active" id="create-mode-anonymous">Ẩn danh</button>
+        </div>
+        <div class="mode-note">Tên và ảnh đại diện của bạn sẽ được thay thế bằng "Người dùng ẩn danh"</div>
+      </div>
+
+      <form id="create-post-form">
+        <div class="field-block">
+          <label class="field-label" for="create-category">Danh mục / Chủ đề <span style="color:#df4f75;">*</span></label>
+          <select id="create-category" class="field-select">
+            <option value="sau-sinh" selected>Sau sinh &amp; chăm sóc mẹ</option>
+            <option value="dinh-duong">Dinh dưỡng</option>
+            <option value="hoi-dap">Hỏi đáp bác sĩ</option>
+          </select>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="create-title">Tiêu đề bài viết <span style="color:#df4f75;">*</span></label>
+          <input id="create-title" class="field-control" type="text" placeholder="Nhập tiêu đề bài viết">
+          <div class="field-error">*Vui lòng nhập tiêu đề bài viết</div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="create-content">Nội dung bài viết <span style="color:#df4f75;">*</span></label>
+          <textarea id="create-content" class="field-area" placeholder="Nhập nội dung bài viết"></textarea>
+          <div class="field-error">*Vui lòng nhập tiêu đề bài viết</div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label">Hình ảnh mô tả</label>
+          <div class="upload-box">Kéo thả hoặc nhấn để tải ảnh lên</div>
+        </div>
+
+        <div class="edit-actions">
+          <button type="button" class="btn-modal" id="cancel-create-post">Hủy</button>
+          <button type="submit" class="btn-modal btn-modal-primary">Đăng bài viết</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="post-modal-overlay" id="delete-post-modal">
+    <div class="post-modal" style="max-width: 420px; text-align: center;" onclick="event.stopPropagation()">
+      <div class="post-modal-head" style="justify-content: center; margin-bottom: 8px;">
+        <h2 class="post-modal-title" style="font-size: 22px;">Xác nhận xóa bài viết</h2>
+      </div>
+      <p style="margin: 0; color: #5e6678; font-size: 14px;">Bạn có chắc muốn xóa bài viết này? Hành động này không thể hoàn tác.</p>
+      <div class="edit-actions" style="justify-content: center; margin-top: 16px;">
+        <button type="button" class="btn-modal" id="cancel-delete-post">Hủy</button>
+        <button type="button" class="btn-modal btn-modal-primary" id="confirm-delete-post">Xác nhận xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-modal-overlay" id="report-reasons-modal">
+    <div class="report-modal" onclick="event.stopPropagation()">
+      <div class="report-modal-head">
+        <button type="button" class="report-back-btn" id="close-report-reasons" aria-label="Quay lại">‹</button>
+        <h3 class="report-modal-title">Báo cáo bài đăng này</h3>
+      </div>
+      <div class="report-modal-body">
+        <p class="report-modal-note">Vui lòng giải thích vấn đề với bài đăng này.</p>
+        <button type="button" class="report-reason-btn" data-report-reason="Sai sự thật hoặc lừa gạt"><span>Sai sự thật hoặc lừa gạt</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Khiêu dâm"><span>Khiêu dâm</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Phản cảm"><span>Phản cảm</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Bạo lực"><span>Bạo lực</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Nội dung bị cấm"><span>Nội dung bị cấm</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Spam"><span>Spam</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Tin tức bị sai lệch"><span>Tin tức bị sai lệch</span><span class="arrow">›</span></button>
+        <button type="button" class="report-reason-btn" data-report-reason="Khác"><span>Khác</span><span class="arrow">›</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-modal-overlay" id="report-submit-modal">
+    <div class="report-modal" onclick="event.stopPropagation()">
+      <div class="report-modal-head">
+        <button type="button" class="report-back-btn" id="back-to-report-reasons" aria-label="Quay lại">‹</button>
+        <h3 class="report-modal-title">Gửi báo cáo</h3>
+      </div>
+      <div class="report-submit-content">
+        <p class="report-modal-note" style="padding:0 0 10px;">Chúng tôi sẽ không tiết lộ người báo cáo. Vui lòng kiểm tra những chi tiết dưới đây</p>
+        <div class="report-selected-reason">
+          <span class="dot">!</span>
+          <span id="report-selected-reason-text">Sai sự thật hoặc lừa gạt</span>
+        </div>
+        <button type="button" class="report-submit-btn" id="submit-report-btn">Gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-modal-overlay" id="report-success-modal">
+    <div class="report-success-card" onclick="event.stopPropagation()">
+      <div class="report-success-icon">✓</div>
+      <p>Cảm ơn bạn đã phản hồi<br>Chúng tôi sẽ xem xét nội dung này</p>
+    </div>
+  </div>
+
+  <script src="{% load static %}{% static 'js/auth.js' %}"></script>
+  <script>
+    let activeReviewTargetId = '';
+    const createPostModal = document.getElementById('create-post-modal');
+    const openCreatePostBtn = document.getElementById('open-create-post-btn');
+    const openCreatePostInput = document.getElementById('open-create-post-input');
+    const closeCreatePostModalBtn = document.getElementById('close-create-post-modal');
+    const cancelCreatePostBtn = document.getElementById('cancel-create-post');
+    const createPostForm = document.getElementById('create-post-form');
+    const createModePublic = document.getElementById('create-mode-public');
+    const createModeAnonymous = document.getElementById('create-mode-anonymous');
+    const createPostModalTitle = createPostModal.querySelector('.post-modal-title');
+    const createPostSubmitBtn = createPostForm.querySelector('.btn-modal-primary');
+    const createPostTitleInput = document.getElementById('create-title');
+    const createPostContentInput = document.getElementById('create-content');
+    const createPostCategoryInput = document.getElementById('create-category');
+    const deletePostModal = document.getElementById('delete-post-modal');
+    const cancelDeletePostBtn = document.getElementById('cancel-delete-post');
+    const confirmDeletePostBtn = document.getElementById('confirm-delete-post');
+    const reportReasonsModal = document.getElementById('report-reasons-modal');
+    const reportSubmitModal = document.getElementById('report-submit-modal');
+    const reportSuccessModal = document.getElementById('report-success-modal');
+    const closeReportReasonsBtn = document.getElementById('close-report-reasons');
+    const backToReportReasonsBtn = document.getElementById('back-to-report-reasons');
+    const submitReportBtn = document.getElementById('submit-report-btn');
+    const reportSelectedReasonText = document.getElementById('report-selected-reason-text');
+    let activePostCard = null;
+
+    function closeAllPostMenus() {
+      document.querySelectorAll('.post-options-menu.show').forEach(function (menu) {
+        menu.classList.remove('show');
+      });
+    }
+
+    function setCreateMode(mode) {
+      if (mode === 'public') {
+        createModePublic.classList.add('active');
+        createModeAnonymous.classList.remove('active');
+      } else {
+        createModeAnonymous.classList.add('active');
+        createModePublic.classList.remove('active');
+      }
+    }
+
+    function openCreatePostModal(mode, card) {
+      if (mode === 'edit' && card) {
+        createPostModalTitle.textContent = 'Sửa bài viết';
+        createPostSubmitBtn.textContent = 'Lưu bài viết';
+        createPostTitleInput.value = card.getAttribute('data-post-title') || '';
+        createPostContentInput.value = card.getAttribute('data-post-content') || '';
+        createPostCategoryInput.value = card.getAttribute('data-post-category') || 'sau-sinh';
+        setCreateMode('public');
+      } else {
+        createPostModalTitle.textContent = 'Thêm bài viết';
+        createPostSubmitBtn.textContent = 'Đăng bài viết';
+        createPostForm.reset();
+        setCreateMode('anonymous');
+      }
+
+      createPostModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCreatePostModal() {
+      createPostModal.classList.remove('show');
+      document.body.style.overflow = '';
+      createPostForm.reset();
+      setCreateMode('anonymous');
+      createPostModalTitle.textContent = 'Thêm bài viết';
+      createPostSubmitBtn.textContent = 'Đăng bài viết';
+    }
+
+    function openDeletePostModal(card) {
+      activePostCard = card;
+      deletePostModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeletePostModal() {
+      deletePostModal.classList.remove('show');
+      if (!createPostModal.classList.contains('show') && !reportReasonsModal.classList.contains('show') && !reportSubmitModal.classList.contains('show')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    function openSimpleModal(modal) {
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSimpleModal(modal) {
+      modal.classList.remove('show');
+      if (!createPostModal.classList.contains('show') && !deletePostModal.classList.contains('show') && !reportReasonsModal.classList.contains('show') && !reportSubmitModal.classList.contains('show') && !reportSuccessModal.classList.contains('show')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    openCreatePostBtn.addEventListener('click', function () {
+      openCreatePostModal('create');
+    });
+    openCreatePostInput.addEventListener('click', function () {
+      openCreatePostModal('create');
+    });
+    closeCreatePostModalBtn.addEventListener('click', closeCreatePostModal);
+    cancelCreatePostBtn.addEventListener('click', closeCreatePostModal);
+
+    createPostModal.addEventListener('click', function () {
+      closeCreatePostModal();
+    });
+
+    createPostForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      closeCreatePostModal();
+    });
+
+    createModeAnonymous.addEventListener('click', function () {
+      setCreateMode('anonymous');
+    });
+
+    createModePublic.addEventListener('click', function () {
+      setCreateMode('public');
+    });
+
+    document.querySelectorAll('.post-options-btn').forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var card = button.closest('.post-card');
+        var menu = button.nextElementSibling;
+        var isOwner = card.getAttribute('data-post-owner') === 'true';
+
+        closeAllPostMenus();
+        menu.classList.add('show');
+
+        menu.querySelector('[data-post-action="edit"]').style.display = isOwner ? 'block' : 'none';
+        menu.querySelector('[data-post-action="delete"]').style.display = isOwner ? 'block' : 'none';
+        menu.querySelector('[data-post-action="report"]').style.display = isOwner ? 'none' : 'block';
+      });
+    });
+
+    document.querySelectorAll('.post-options-item').forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var action = button.getAttribute('data-post-action');
+        var card = button.closest('.post-card');
+        closeAllPostMenus();
+
+        if (action === 'edit') {
+          openCreatePostModal('edit', card);
+        }
+
+        if (action === 'delete') {
+          openDeletePostModal(card);
+        }
+
+        if (action === 'report') {
+          openSimpleModal(reportReasonsModal);
+        }
+      });
+    });
+
+    cancelDeletePostBtn.addEventListener('click', closeDeletePostModal);
+    confirmDeletePostBtn.addEventListener('click', function () {
+      if (activePostCard) {
+        activePostCard.remove();
+        activePostCard = null;
+      }
+      closeDeletePostModal();
+    });
+
+    deletePostModal.addEventListener('click', closeDeletePostModal);
+
+    closeReportReasonsBtn.addEventListener('click', function () {
+      closeSimpleModal(reportReasonsModal);
+    });
+
+    backToReportReasonsBtn.addEventListener('click', function () {
+      closeSimpleModal(reportSubmitModal);
+      openSimpleModal(reportReasonsModal);
+    });
+
+    reportReasonsModal.addEventListener('click', function () {
+      closeSimpleModal(reportReasonsModal);
+    });
+
+    reportSubmitModal.addEventListener('click', function () {
+      closeSimpleModal(reportSubmitModal);
+    });
+
+    reportSuccessModal.addEventListener('click', function () {
+      closeSimpleModal(reportSuccessModal);
+    });
+
+    document.querySelectorAll('.report-reason-btn').forEach(function (button) {
+      button.addEventListener('click', function () {
+        reportSelectedReasonText.textContent = button.getAttribute('data-report-reason') || 'Khác';
+        closeSimpleModal(reportReasonsModal);
+        openSimpleModal(reportSubmitModal);
+      });
+    });
+
+    submitReportBtn.addEventListener('click', function () {
+      closeSimpleModal(reportSubmitModal);
+      openSimpleModal(reportSuccessModal);
+      setTimeout(function () {
+        closeSimpleModal(reportSuccessModal);
+      }, 1600);
+    });
+
+    document.addEventListener('click', function () {
+      closeAllPostMenus();
+    });
+
+    function resetReviewReasons() {
+      document.querySelectorAll('#review-reason-modal input[name="review_reason"]').forEach(function (checkbox) {
+        checkbox.checked = false;
+      });
+    }
+
+    document.querySelectorAll('.verify-trigger').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (button.classList.contains('verified')) {
+          return;
+        }
+        activeReviewTargetId = button.dataset.reviewTarget || '';
+        openModal('review-reason-modal');
+      });
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && createPostModal.classList.contains('show')) {
+        closeCreatePostModal();
+      }
+      if (event.key === 'Escape' && deletePostModal.classList.contains('show')) {
+        closeDeletePostModal();
+      }
+      if (event.key === 'Escape' && reportReasonsModal.classList.contains('show')) {
+        closeSimpleModal(reportReasonsModal);
+      }
+      if (event.key === 'Escape' && reportSubmitModal.classList.contains('show')) {
+        closeSimpleModal(reportSubmitModal);
+      }
+      if (event.key === 'Escape' && reportSuccessModal.classList.contains('show')) {
+        closeSimpleModal(reportSuccessModal);
+      }
+    });
+
+    document.getElementById('close-review-modal').addEventListener('click', function () {
+      closeModal(document.getElementById('review-reason-modal'));
+      resetReviewReasons();
+    });
+
+    document.getElementById('cancel-review-modal').addEventListener('click', function () {
+      closeModal(document.getElementById('review-reason-modal'));
+      resetReviewReasons();
+    });
+
+    document.getElementById('confirm-review-modal').addEventListener('click', function () {
+      const selectedReasons = document.querySelectorAll('#review-reason-modal input[name="review_reason"]:checked');
+      if (!selectedReasons.length) {
+        alert('Vui lòng chọn ít nhất một lý do kiểm định.');
+        return;
+      }
+
+      if (activeReviewTargetId) {
+        const status = document.getElementById(activeReviewTargetId);
+        const trigger = document.querySelector('.verify-trigger[data-review-target="' + activeReviewTargetId + '"]');
+        if (status) {
+          status.classList.add('show');
+        }
+        if (trigger) {
+          trigger.classList.add('verified');
+          trigger.setAttribute('aria-label', 'Bài viết đã được kiểm duyệt');
+        }
+      }
+
+      closeModal(document.getElementById('review-reason-modal'));
+      resetReviewReasons();
+      activeReviewTargetId = '';
+    });
+
+    function syncUserDisplay() {
+      const user = JSON.parse(localStorage.getItem('momcare_user') || '{}');
+      if (user.name) {
+        const initial = user.name.charAt(0).toUpperCase();
+        const avatarEl = document.getElementById('user-avatar-display');
+        const dropdownAvatar = document.getElementById('dropdown-avatar-display');
+        const userNameEl = document.getElementById('user-name-display');
+        if (avatarEl) avatarEl.textContent = initial;
+        if (dropdownAvatar) dropdownAvatar.textContent = initial;
+        if (userNameEl) userNameEl.textContent = user.name;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', syncUserDisplay);
+  </script>
+  {% include 'auth/post_detail.html' %}
+</body>
+</html>

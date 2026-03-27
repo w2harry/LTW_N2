@@ -1,0 +1,316 @@
+<!-- Tab Navigation -->
+<div class="auth-tabs">
+  <button class="auth-tab active" data-tab="login">Đăng nhập</button>
+  <button class="auth-tab" data-tab="register">Đăng ký</button>
+</div>
+
+<!-- Login Form -->
+<div id="login" class="auth-tab-content active">
+  <div class="modal-header">
+    <h2 class="modal-title">Đăng nhập</h2>
+    <p class="modal-description">Đăng nhập vào tài khoản của bạn để sử dụng đầy đủ chức năng của MomCare</p>
+  </div>
+
+  <form id="login-form">
+    <div class="form-group">
+      <label class="form-label" for="username">Tên đăng nhập</label>
+      <input type="text" id="username" class="form-input" placeholder="Nhập tên đăng nhập" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Mật khẩu</label>
+      <div class="password-input-wrapper">
+        <input type="password" id="password" class="form-input" placeholder="Nhập mật khẩu" required>
+        <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+          <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary">Đăng nhập</button>
+
+    <a class="auth-link" onclick="openForgotPasswordModal()">Quên mật khẩu?</a>
+  </form>
+</div>
+
+<!-- Register Form (Step 1) -->
+<div id="register" class="auth-tab-content">
+  <div class="modal-header">
+    <h2 class="modal-title">Đăng ký</h2>
+    <p class="modal-description">Đăng ký tài khoản để trải nghiệm đầy đủ dịch vụ của MomCare</p>
+  </div>
+
+  <div id="register-step1" class="auth-step active">
+    <form id="send-otp-form">
+      <div class="form-group">
+        <label class="form-label" for="register-email">Email</label>
+        <input type="email" id="register-email" class="form-input" placeholder="Nhập email đăng ký" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="register-username">Tên đăng nhập</label>
+        <input type="text" id="register-username" class="form-input" placeholder="Nhập tên đăng nhập" required>
+      </div>
+
+      <button type="submit" class="btn-primary" data-next-step="register-step2">Gửi OTP</button>
+
+      <a class="back-link" onclick="switchTab('login')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Quay lại
+      </a>
+    </form>
+  </div>
+
+  <!-- Register Step 2: OTP -->
+  <div id="register-step2" class="auth-step">
+    <div class="modal-header">
+      <p class="modal-description">Người dùng nhập mã OTP để xác minh email</p>
+    </div>
+
+    <form class="verify-otp-form">
+      <div class="form-group">
+        <label class="form-label" for="register-otp">Mã OTP</label>
+        <input type="text" id="register-otp" class="form-input otp-input" placeholder="Nhập mã OTP" maxlength="6" required>
+      </div>
+
+      <div class="otp-timer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span class="timer-value">01:00</span>
+      </div>
+
+      <button type="submit" class="btn-primary" data-next-step="register-step3">Xác minh</button>
+
+      <a class="back-link" data-prev-step="register-step1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Quay lại
+      </a>
+    </form>
+  </div>
+
+  <!-- Register Step 3: Password -->
+  <div id="register-step3" class="auth-step">
+    <div class="modal-header">
+      <p class="modal-description">Người dùng nhập mật khẩu để hoàn tất đăng ký</p>
+    </div>
+
+    <form class="password-setup-form">
+      <div class="form-group">
+        <label class="form-label" for="register-password">Mật khẩu</label>
+        <div class="password-input-wrapper">
+          <input type="password" id="register-password" class="form-input" placeholder="Nhập mật khẩu" required>
+          <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="register-confirm-password">Xác nhận mật khẩu</label>
+        <div class="password-input-wrapper">
+          <input type="password" id="register-confirm-password" class="form-input" placeholder="Nhập mật khẩu xác nhận" required>
+          <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+            <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" data-next-step="register-step4">Tiếp tục</button>
+
+      <a class="back-link" data-prev-step="register-step2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Quay lại
+      </a>
+    </form>
+  </div>
+
+  <!-- Register Step 4: Topics -->
+  <div id="register-step4" class="auth-step">
+    <div class="modal-header">
+      <h2 class="modal-title">Các chủ đề quan tâm</h2>
+      <p class="modal-description">Chọn các chủ đề bạn muốn theo dõi</p>
+    </div>
+
+    <form id="register-form">
+      <div class="topics-grid">
+        <div class="topic-item">
+          <input type="checkbox" id="topic-1" class="topic-checkbox" value="pregnancy-stages">
+          <label for="topic-1" class="topic-label">
+            <span class="topic-icon green">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Mang thai theo giai đoạn</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-2" class="topic-checkbox" value="nutrition">
+          <label for="topic-2" class="topic-label">
+            <span class="topic-icon yellow">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Dinh dưỡng &amp; Sinh hoạt</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-3" class="topic-checkbox" value="maternal-health">
+          <label for="topic-3" class="topic-label">
+            <span class="topic-icon red">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Sức khỏe mẹ bầu</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-4" class="topic-checkbox" value="fetus-development">
+          <label for="topic-4" class="topic-label">
+            <span class="topic-icon pink">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Thai nhi &amp; phát triển</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-5" class="topic-checkbox" value="birth-preparation">
+          <label for="topic-5" class="topic-label">
+            <span class="topic-icon orange">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Chuẩn bị sinh &amp; sinh nở</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-6" class="topic-checkbox" value="postpartum-care">
+          <label for="topic-6" class="topic-label">
+            <span class="topic-icon yellow">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Sau sinh &amp; chăm sóc mẹ</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-7" class="topic-checkbox" value="newborn-care">
+          <label for="topic-7" class="topic-label">
+            <span class="topic-icon orange">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Chăm sóc em bé sơ sinh</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+
+        <div class="topic-item">
+          <input type="checkbox" id="topic-8" class="topic-checkbox" value="experience-sharing">
+          <label for="topic-8" class="topic-label">
+            <span class="topic-icon yellow">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="topic-text">Kinh nghiệm &amp; chia sẻ</span>
+            <span class="topic-checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" disabled>Hoàn tất</button>
+
+      <a class="back-link" data-prev-step="register-step3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Quay lại
+      </a>
+    </form>
+  </div>
+</div>

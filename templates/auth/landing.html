@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MomCare - Diễn đàn chăm sóc mẹ bầu</title>
+  <link rel="stylesheet" href="{% load static %}{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% load static %}{% static 'css/auth.css' %}">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="#" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        MomCare
+      </a>
+
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Tìm kiếm bài viết">
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{% url 'landing' %}" class="nav-link active">Trang chủ</a>
+        <a href="{% url 'forum' %}" class="nav-link">Diễn đàn</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Chưa đăng nhập -->
+        <div id="auth-buttons" class="auth-buttons">
+          <button class="btn-login" data-modal="auth-modal">Đăng nhập</button>
+        </div>
+
+        <!-- Đã đăng nhập -->
+        <div id="user-menu" class="user-menu" style="display: none;">
+          <button class="icon-btn" id="notification-btn" title="Thông báo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-badge">3</span>
+          </button>
+          <div class="user-dropdown">
+            <button class="user-avatar-btn" id="user-avatar-btn">
+              <div class="user-avatar">M</div>
+            </button>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <div class="dropdown-user-info">
+                <div class="dropdown-avatar">M</div>
+                <div class="dropdown-user-name">Minh Anh</div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Trang cá nhân
+              </a>
+              <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                Quản trị
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item logout-item" id="logout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Đăng xuất
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">Hành trình làm mẹ an toàn và hạnh phúc</h1>
+        <p class="hero-subtitle">
+          Kết nối với cộng đồng Mầm mày, chia sẻ kinh nghiệm và tìm hiểu tư vấn từ các bác sĩ chuyên nghiệp khóa học hàng đầu
+        </p>
+        <button class="btn-cta">
+          Khám phá giá trị
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+        
+        <div class="stats-inline" style="display: flex; gap: 40px; margin-top: 40px; background: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: fit-content;">
+          <div class="stat-item" style="text-align: center;">
+            <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--primary-pink);">10k+</div>
+            <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gray);">Thành viên</div>
+          </div>
+          <div class="stat-item" style="text-align: center;">
+            <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--primary-pink);">50+</div>
+            <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gray);">Bác sĩ</div>
+          </div>
+          <div class="stat-item" style="text-align: center;">
+            <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--primary-pink);">1000+</div>
+            <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gray);">Bài viết</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% load static %}{% static 'image/image1.png' %}" alt="MomCare">
+      </div>
+    </div>
+  </section>
+
+  <!-- Topics Grid -->
+  <section class="topics-section">
+    <h2 class="section-title">Khám phá chủ đề</h2>
+    <p class="section-subtitle">Tìm hiểu và tham gia thảo luận về các chủ đề quan trọng trong hành trình làm mẹ</p>
+    <div class="topics-grid">
+      <div class="topic-card">
+        <div class="topic-icon pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <h3 class="topic-title">Tương tác bài viết</h3>
+        <p class="topic-description">Chia sẻ và thảo luận kinh nghiệm</p>
+        <div class="topic-footer">
+          <span class="topic-count">2.5k bài viết</span>
+          <a href="#" class="topic-link">Xem thêm <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <h3 class="topic-title">Tư vấn bác sĩ</h3>
+        <p class="topic-description">Nhận tư vấn từ chuyên gia</p>
+        <div class="topic-footer">
+          <span class="topic-count">850 bài viết</span>
+          <a href="#" class="topic-link teal-link">Xem thêm <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-icon pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+        </div>
+        <h3 class="topic-title">Chăm sóc thai kỳ</h3>
+        <p class="topic-description">Kiến thức chăm sóc thai kỳ</p>
+        <div class="topic-footer">
+          <span class="topic-count">1.2k bài viết</span>
+          <a href="#" class="topic-link">Xem thêm <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <h3 class="topic-title">Dinh dưỡng</h3>
+        <p class="topic-description">Chế độ ăn cho mẹ bầu</p>
+        <div class="topic-footer">
+          <span class="topic-count">980 bài viết</span>
+          <a href="#" class="topic-link teal-link">Xem thêm <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-icon pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </div>
+        <h3 class="topic-title">Kiến thức nuôi con</h3>
+        <p class="topic-description">Hướng dẫn chăm sóc sau sinh</p>
+        <div class="topic-footer">
+          <span class="topic-count">720 bài viết</span>
+          <a href="#" class="topic-link">Xem thêm <span>→</span></a>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <div class="topic-icon pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h3 class="topic-title">Báo cáo vi phạm</h3>
+        <p class="topic-description">Đảm bảo môi trường lành mạnh</p>
+        <div class="topic-footer">
+          <span class="topic-count">45 bài viết</span>
+          <a href="#" class="topic-link">Xem thêm <span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Articles -->
+  <section class="featured-section">
+    <div class="featured-header">
+      <h2 class="section-title featured-title">Bài viết nổi bật</h2>
+      <a href="#" class="view-all-link">Xem tất cả <span>→</span></a>
+    </div>
+    <div class="featured-grid">
+      <article class="featured-card">
+        <span class="featured-tag pink-tag">Thai kỳ</span>
+        <img src="{% load static %}{% static 'image/image1.png' %}" class="featured-img" alt="Thai kỳ">
+        <div class="featured-content">
+          <h3 class="featured-title">Kinh nghiệm 3 tháng đầu thai kỳ - Những điều mẹ bầu cần biết</h3>
+          <p class="featured-summary">Chia sẻ kinh nghiệm trong 3 tháng đầu mang thai, từ việc ăn uống đến chăm sóc...</p>
+          <div class="featured-meta">
+            <div class="featured-author">
+              <div class="author-avatar pink">M</div>
+              <span class="author-name">Minh Anh</span>
+              <span class="author-dot">•</span>
+              <span class="author-time">01 giờ trước</span>
+            </div>
+            <div class="featured-stats">
+              <span class="stat-like">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                245
+              </span>
+              <span class="stat-comment" data-modal="post-detail-modal" style="cursor: pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                38
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="featured-card">
+        <span class="featured-tag green-tag">Dinh dưỡng</span>
+        <img src="{% load static %}{% static 'image/image1.png' %}" class="featured-img" alt="Dinh dưỡng">
+        <div class="featured-content">
+          <h3 class="featured-title">Chế độ dinh dưỡng khoa học cho mẹ và bé</h3>
+          <p class="featured-summary">Bác sĩ Nguyễn Thị Lan chia sẻ về chế độ khoa học cho mẹ bầu...</p>
+          <div class="featured-meta">
+            <div class="featured-author">
+              <div class="author-avatar teal">L</div>
+              <span class="author-name">BS. Nguyễn Thị Lan</span>
+              <span class="author-dot">•</span>
+              <span class="author-time">03 giờ trước</span>
+            </div>
+            <div class="featured-stats">
+              <span class="stat-like">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                189
+              </span>
+              <span class="stat-comment" data-modal="post-detail-modal" style="cursor: pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                24
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="featured-card">
+        <span class="featured-tag pink-tag">Chăm sóc</span>
+        <img src="{% load static %}{% static 'image/image1.png' %}" class="featured-img" alt="Chăm sóc">
+        <div class="featured-content">
+          <h3 class="featured-title">Những lưu ý quan trọng khi chăm sóc trẻ sơ sinh</h3>
+          <p class="featured-summary">Tổng hợp những kinh nghiệm quý báu từ các mẹ có con nhỏ...</p>
+          <div class="featured-meta">
+            <div class="featured-author">
+              <div class="author-avatar pink">H</div>
+              <span class="author-name">Thu Hà</span>
+              <span class="author-dot">•</span>
+              <span class="author-time">1 ngày trước</span>
+            </div>
+            <div class="featured-stats">
+              <span class="stat-like">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                156
+              </span>
+              <span class="stat-comment" data-modal="post-detail-modal" style="cursor: pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                18
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Notification Popup -->
+  <div class="notification-popup" id="notification-popup">
+    <div class="notif-header">
+      <h3 class="notif-title">Thông báo</h3>
+      <div class="notif-actions">
+        <button class="notif-tabs">
+          <span class="notif-tab active">Tất cả</span>
+          <span class="notif-tab">Chưa đọc</span>
+        </button>
+        <a href="#" class="notif-mark-read">Đánh dấu tất cả đã đọc</a>
+      </div>
+    </div>
+    <div class="notif-body">
+      <!-- Today -->
+      <div class="notif-group">
+        <div class="notif-group-label">Hôm nay</div>
+        <div class="notif-item unread">
+          <div class="notif-avatar pink">H</div>
+          <div class="notif-content">
+            <p class="notif-text">Hồ Ly đã bình luận bài viết của bạn</p>
+            <span class="notif-time">1 giờ trước</span>
+          </div>
+          <span class="notif-dot"></span>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-avatar pink">H</div>
+          <div class="notif-content">
+            <p class="notif-text">Hồ Ly đã like bài viết của bạn</p>
+            <span class="notif-time">3 giờ trước</span>
+          </div>
+          <span class="notif-dot"></span>
+        </div>
+      </div>
+      <!-- Earlier -->
+      <div class="notif-group">
+        <div class="notif-group-label">Trước đó</div>
+        <div class="notif-item">
+          <div class="notif-avatar teal">B</div>
+          <div class="notif-content">
+            <p class="notif-text">Bác sĩ đã kiểm duyệt bài của bạn</p>
+            <span class="notif-time">6 giờ trước</span>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-avatar pink">H</div>
+          <div class="notif-content">
+            <p class="notif-text">Hồ Ly đã trả lời bình luận của bạn</p>
+            <span class="notif-time">10 giờ trước</span>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-avatar pink">L</div>
+          <div class="notif-content">
+            <p class="notif-text">Ly Ly đã like bài viết của bạn</p>
+            <span class="notif-time">11 giờ trước</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notif-footer">
+      <button class="notif-view-more">Xem thông báo trước đó</button>
+    </div>
+  </div>
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'auth/login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'auth/forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% load static %}{% static 'js/auth.js' %}"></script>
+  <script>
+    function syncUserDisplay() {
+      const user = JSON.parse(localStorage.getItem('momcare_user') || '{}');
+      if (user.name) {
+        const initial = user.name.charAt(0).toUpperCase();
+        const avatarEl = document.getElementById('user-avatar-display');
+        const dropdownAvatar = document.getElementById('dropdown-avatar-display');
+        const userNameEl = document.getElementById('user-name-display');
+        if (avatarEl) avatarEl.textContent = initial;
+        if (dropdownAvatar) dropdownAvatar.textContent = initial;
+        if (userNameEl) userNameEl.textContent = user.name;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', syncUserDisplay);
+  </script>
+
+  {% include 'auth/post_detail.html' %}
+</body>
+</html>

@@ -1,0 +1,1154 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang cá nhân - MomCare</title>
+  <link rel="stylesheet" href="{% load static %}{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% load static %}{% static 'css/auth.css' %}">
+  <style>
+    body {
+      background: #f1e2e4;
+      color: #232734;
+    }
+
+    .profile-shell {
+      max-width: 760px;
+      margin: 16px auto 0;
+      min-height: 100vh;
+      padding: 10px 12px 28px;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .profile-topbar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      font-weight: 600;
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .back-link {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #21252f;
+    }
+
+    .profile-box,
+    .composer-box,
+    .feed-card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #ecd9dd;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .profile-cover {
+      height: 150px;
+      background: #ececec;
+    }
+
+    .profile-content {
+      padding: 0 12px 10px;
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      margin-top: -72px;
+      background: linear-gradient(160deg, #d8dfdb, #bcc5c1);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .avatar-camera {
+      position: absolute;
+      right: -2px;
+      bottom: 4px;
+      width: 22px;
+      height: 22px;
+      background: #d7dde2;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-name {
+      margin-top: 10px;
+      font-size: 36px;
+      line-height: 1.1;
+      font-weight: 700;
+    }
+
+    .profile-bio {
+      margin-top: 2px;
+      color: #6a7283;
+      font-size: 20px;
+    }
+
+    .profile-cta {
+      margin-top: 12px;
+      width: 100%;
+      border: none;
+      height: 40px;
+      border-radius: 10px;
+      background: #b3567d;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .composer-input-row {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .avatar-mini {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #244f5f;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .composer-placeholder {
+      flex: 1;
+      background: #eceff3;
+      height: 36px;
+      border-radius: 18px;
+      border: none;
+      padding: 0 14px;
+      color: #7d8493;
+      font-size: 16px;
+    }
+
+    .composer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px 12px;
+    }
+
+    .composer-action {
+      border: none;
+      background: transparent;
+      color: #616979;
+      font-size: 16px;
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .feed-head {
+      padding: 10px 12px 8px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .feed-user {
+      display: flex;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .feed-user-name {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .feed-user-name-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feed-time {
+      font-size: 12px;
+      color: #788091;
+    }
+
+    .verify-trigger {
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 50%;
+      background: #f4d2df;
+      color: #c9507f;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+
+    .verify-trigger:hover {
+      background: #efbfd2;
+    }
+
+    .verify-trigger svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .verify-trigger.verified {
+      background: #f5d8e4;
+      color: #b83a6f;
+      cursor: default;
+    }
+
+    .review-approved {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      color: #b83a6f;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .review-approved.show {
+      display: inline-flex;
+    }
+
+    .review-approved-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f5d8e4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #b83a6f;
+      flex-shrink: 0;
+    }
+
+    .feed-content {
+      padding: 0 12px 8px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #252a38;
+    }
+
+    .feed-image {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      max-height: 420px;
+      border-top: 1px solid #f2e7ea;
+      border-bottom: 1px solid #f2e7ea;
+    }
+
+    .feed-stats {
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      color: #687082;
+      font-size: 12px;
+      border-bottom: 1px solid #eceff3;
+    }
+
+    .feed-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .feed-action {
+      height: 40px;
+      border: none;
+      background: transparent;
+      color: #545c6d;
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .post-menu-wrap {
+      position: relative;
+    }
+
+    .post-menu-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      background: #f4f6f9;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #32384a;
+    }
+
+    .post-menu {
+      position: absolute;
+      right: 0;
+      top: 34px;
+      width: 130px;
+      background: #fff;
+      border: 1px solid #d7dde6;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(22, 24, 29, 0.14);
+      display: none;
+      z-index: 2;
+    }
+
+    .post-menu.show {
+      display: block;
+    }
+
+    .post-menu button {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+      padding: 9px 10px;
+      font-size: 13px;
+      color: #2b3140;
+      cursor: pointer;
+    }
+
+    .post-menu button:last-child {
+      color: #d32f2f;
+      border-top: 1px solid #edf1f6;
+    }
+
+    .post-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 28, 34, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 16px;
+    }
+
+    .post-modal-overlay.show {
+      display: flex;
+    }
+
+    .post-modal {
+      width: 100%;
+      max-width: 760px;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 12px 36px rgba(16, 18, 26, 0.22);
+      border: 1px solid #ead6dd;
+      padding: 14px 16px 16px;
+    }
+
+    .post-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .post-modal-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2430;
+    }
+
+    .post-modal-close {
+      border: none;
+      background: transparent;
+      color: #6f7787;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .edit-mode {
+      margin-bottom: 10px;
+    }
+
+    .edit-mode-label,
+    .field-label {
+      display: block;
+      font-size: 14px;
+      color: #2f3544;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .mode-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      border: 1px solid #dcdee7;
+      border-radius: 10px;
+      height: 42px;
+      background: #fff;
+      color: #71798a;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mode-btn.active {
+      border-color: #ce80a5;
+      background: #f1cfe2;
+      color: #a84775;
+    }
+
+    .mode-note {
+      background: #f0e8ee;
+      color: #7d6674;
+      border-radius: 8px;
+      font-size: 13px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+    }
+
+    .field-block {
+      margin-bottom: 10px;
+    }
+
+    .field-control,
+    .field-area,
+    .field-select {
+      width: 100%;
+      border: 1px solid #e2d3db;
+      border-radius: 10px;
+      background: #f6eef3;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #33394a;
+      font-family: inherit;
+    }
+
+    .field-area {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .field-error {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #df4f75;
+      font-style: italic;
+    }
+
+    .upload-box {
+      margin-top: 10px;
+      border: 2px dashed #d3d7e0;
+      border-radius: 10px;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #778093;
+      background: #faf8fb;
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-modal {
+      min-width: 120px;
+      height: 42px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #d6dbe6;
+      background: #fff;
+      color: #2e3444;
+    }
+
+    .btn-modal-primary {
+      border-color: #b3567d;
+      background: #b3567d;
+      color: #fff;
+    }
+
+    .delete-modal {
+      max-width: 520px;
+      text-align: center;
+      padding: 26px 20px 22px;
+    }
+
+    .delete-icon {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1dce6;
+      color: #d05b8b;
+      font-size: 28px;
+    }
+
+    .delete-title {
+      font-size: 40px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 24px;
+    }
+
+    .delete-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .review-modal-card {
+      width: min(560px, 96vw);
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid #eecfdb;
+      box-shadow: 0 22px 50px rgba(32, 17, 26, 0.25);
+      overflow: hidden;
+    }
+
+    .review-modal-head {
+      padding: 18px 20px 12px;
+      border-bottom: 1px solid #f0dce4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .review-modal-title {
+      margin: 0;
+      font-size: 22px;
+      color: #1f2430;
+      font-weight: 700;
+    }
+
+    .review-modal-close {
+      border: none;
+      background: transparent;
+      font-size: 24px;
+      line-height: 1;
+      color: #70788a;
+      cursor: pointer;
+    }
+
+    .review-modal-body {
+      padding: 16px 20px 14px;
+    }
+
+    .review-hint {
+      margin: 0 0 12px;
+      color: #626d80;
+      font-size: 14px;
+    }
+
+    .review-reason-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .review-reason-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #ead6df;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #2f3544;
+      background: #fff;
+    }
+
+    .review-reason-item input {
+      accent-color: #c9507f;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    .review-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 20px 18px;
+    }
+
+    .review-btn {
+      min-width: 120px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid #d9dce4;
+      background: #fff;
+      color: #2e3444;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .review-btn.primary {
+      border-color: #c9507f;
+      background: #c9507f;
+      color: #fff;
+    }
+
+    .site-footer {
+      margin-top: 0;
+      background: #ffffff;
+      border-top: 1px solid #e7d2d8;
+      padding: 18px 12px;
+      text-align: center;
+      color: #71798a;
+      font-size: 14px;
+    }
+
+    .site-footer strong {
+      color: #b3567d;
+    }
+
+    @media (max-width: 768px) {
+      .profile-shell {
+        margin-top: 8px;
+        padding: 8px 8px 20px;
+      }
+
+      .profile-name {
+        font-size: 30px;
+      }
+
+      .profile-bio {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="{% url 'landing' %}" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        MomCare
+      </a>
+
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Tìm kiếm bài viết">
+      </div>
+
+      <nav class="nav-menu">
+        <a href="{% url 'landing' %}" class="nav-link">Trang chủ</a>
+        <a href="{% url 'forum' %}" class="nav-link">Diễn đàn</a>
+      </nav>
+
+      <div class="header-actions">
+        <div id="auth-buttons" class="auth-buttons">
+          <button class="btn-login" data-modal="auth-modal">Đăng nhập</button>
+        </div>
+
+        <div id="user-menu" class="user-menu" style="display: none;">
+          <button class="icon-btn" id="notification-btn" title="Thông báo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-badge">3</span>
+          </button>
+          <div class="user-dropdown">
+            <button class="user-avatar-btn" id="user-avatar-btn">
+              <div class="user-avatar" id="user-avatar-display">M</div>
+            </button>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <div class="dropdown-user-info">
+                <div class="dropdown-avatar" id="dropdown-avatar-display">M</div>
+                <div class="dropdown-user-name" id="user-name-display">Minh Anh</div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="{% url 'profile' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Trang cá nhân
+              </a>
+              <a href="{% url 'admin_dashboard' %}" class="dropdown-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                Quản trị
+              </a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item logout-item" id="logout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Đăng xuất
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="profile-shell">
+    <div class="profile-topbar">
+      <a href="{% url 'forum' %}" class="back-link" aria-label="Quay lại">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      </a>
+      <span id="profile-title-name">Bùi Ly</span>
+    </div>
+
+    <section class="profile-box">
+      <div class="profile-cover"></div>
+      <div class="profile-content">
+        <div class="profile-avatar" id="profile-avatar">B
+          <span class="avatar-camera">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </span>
+        </div>
+        <h1 class="profile-name" id="profile-name">Bùi Ly</h1>
+        <p class="profile-bio">Đang tận hưởng hành trình làm mẹ tuyệt vời nhất</p>
+        <button class="profile-cta" id="go-profile-info" data-href="{% url 'profile_info' %}">Xem hồ sơ của tôi</button>
+      </div>
+    </section>
+
+    <section class="composer-box">
+      <div class="composer-input-row">
+        <div class="avatar-mini" id="composer-avatar">B</div>
+        <input class="composer-placeholder" type="text" placeholder="Ly ơi, bạn đang nghĩ gì thế?">
+      </div>
+      <div class="composer-actions">
+        <button class="composer-action" type="button">
+          <span style="color:#43a047;">▣</span> Ảnh
+        </button>
+        <button class="composer-action" type="button">
+          <span style="color:#f9a825;">☺</span> Cảm xúc
+        </button>
+      </div>
+    </section>
+
+    <article class="feed-card">
+      <div class="feed-head">
+        <div class="feed-user">
+          <div class="avatar-mini" id="post-avatar">B</div>
+          <div>
+            <div class="feed-user-name-row">
+              <div class="feed-user-name" id="post-user-name">Bùi Ly</div>
+              <button type="button" class="verify-trigger" data-review-target="profile-review-1" aria-label="Kiểm định bài viết">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                </svg>
+              </button>
+            </div>
+            <div class="feed-time">2 giờ trước · Công khai</div>
+            <div class="review-approved" id="profile-review-1">
+              <span class="review-approved-icon">
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                </svg>
+              </span>
+              Đã được kiểm duyệt bởi chuyên gia
+            </div>
+          </div>
+        </div>
+        <div class="post-menu-wrap">
+          <button class="post-menu-btn" id="post-menu-btn" type="button" aria-label="Tùy chọn bài viết">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <circle cx="12" cy="5" r="2"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+              <circle cx="12" cy="19" r="2"></circle>
+            </svg>
+          </button>
+          <div class="post-menu" id="post-menu">
+            <button type="button" id="edit-post-trigger">Sửa bài viết</button>
+            <button type="button" id="delete-post-trigger">Xóa bài viết</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed-content">
+        Hôm nay qua bé đi tiêm chủng, trộm vía em bé ngoan không quấy khóc tí nào. Cảm ơn các bác sĩ tại MomCare đã hỗ trợ em rất tận tình.
+      </div>
+
+      <img src="{% load static %}{% static 'image/image1.png' %}" alt="Bài viết" class="feed-image">
+
+      <div class="feed-stats">
+        <span>128 lượt thích</span>
+        <span>12 bình luận · 3 chia sẻ</span>
+      </div>
+
+      <div class="feed-actions">
+        <button class="feed-action" type="button">Thích</button>
+        <button class="feed-action" type="button" data-modal="post-detail-modal">Bình luận</button>
+        <button class="feed-action" type="button">Chia sẻ</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="notification-popup" id="notification-popup">
+    <div class="notif-header">
+      <h3 class="notif-title">Thông báo</h3>
+      <div class="notif-actions">
+        <button class="notif-tabs">
+          <span class="notif-tab active">Tất cả</span>
+          <span class="notif-tab">Chưa đọc</span>
+        </button>
+        <a href="#" class="notif-mark-read">Đánh dấu tất cả đã đọc</a>
+      </div>
+    </div>
+    <div class="notif-body">
+      <div class="notif-group">
+        <div class="notif-group-label">Hôm nay</div>
+        <div class="notif-item unread">
+          <div class="notif-avatar pink">H</div>
+          <div class="notif-content">
+            <p class="notif-text">Hồ Ly đã bình luận bài viết của bạn</p>
+            <span class="notif-time">1 giờ trước</span>
+          </div>
+          <span class="notif-dot"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'auth/login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'auth/forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <div class="post-modal-overlay" id="edit-post-modal">
+    <div class="post-modal" onclick="event.stopPropagation()">
+      <div class="post-modal-head">
+        <h2 class="post-modal-title">Sửa bài viết</h2>
+        <button class="post-modal-close" id="close-edit-modal" type="button">×</button>
+      </div>
+
+      <div class="edit-mode">
+        <label class="edit-mode-label">Chế độ hiển thị</label>
+        <div class="mode-group">
+          <button type="button" class="mode-btn" id="mode-public">Công khai</button>
+          <button type="button" class="mode-btn active" id="mode-anonymous">Ẩn danh</button>
+        </div>
+        <div class="mode-note">Tên và ảnh đại diện của bạn sẽ được thay thế bằng "Người dùng ẩn danh"</div>
+      </div>
+
+      <form id="edit-post-form">
+        <div class="field-block">
+          <label class="field-label" for="edit-category">Danh mục / Chủ đề <span style="color:#df4f75;">*</span></label>
+          <select id="edit-category" class="field-select">
+            <option value="sau-sinh" selected>Sau sinh &amp; chăm sóc mẹ</option>
+            <option value="dinh-duong">Dinh dưỡng</option>
+            <option value="hoi-dap">Hỏi đáp bác sĩ</option>
+          </select>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="edit-title">Tiêu đề bài viết <span style="color:#df4f75;">*</span></label>
+          <input id="edit-title" class="field-control" type="text" value="Sau sinh 3 tháng có kinh từ tháng đầu sau">
+          <div class="field-error">*Vui lòng nhập tiêu đề bài viết</div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="edit-content">Nội dung bài viết <span style="color:#df4f75;">*</span></label>
+          <textarea id="edit-content" class="field-area">Sau sinh 3 tháng có kinh từ tháng đầu sau sinh đến tháng thứ 2 sau sinh có kinh đều đúng ngày như nhau là mùng 10 nhưng qua tháng thứ 3 lại có kinh vào ngày 27 có sao không ạ</textarea>
+          <div class="field-error">*Vui lòng nhập tiêu đề bài viết</div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label">Hình ảnh mô tả</label>
+          <div class="upload-box">Kéo thả hoặc nhấn để tải ảnh lên</div>
+        </div>
+
+        <div class="edit-actions">
+          <button type="button" class="btn-modal" id="cancel-edit-post">Hủy</button>
+          <button type="submit" class="btn-modal btn-modal-primary">Lưu bài viết</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="post-modal-overlay" id="delete-post-modal">
+    <div class="post-modal delete-modal" onclick="event.stopPropagation()">
+      <div class="delete-icon">⚠</div>
+      <div class="delete-title">Xác nhận Xóa Bài Viết</div>
+      <div class="delete-actions">
+        <button class="btn-modal btn-modal-primary" id="confirm-delete-post" type="button">Xác nhận xóa</button>
+        <button class="btn-modal" id="cancel-delete-post" type="button">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="review-reason-modal" class="modal-overlay">
+    <div class="review-modal-card" onclick="event.stopPropagation()">
+      <div class="review-modal-head">
+        <h2 class="review-modal-title">Chọn lý do kiểm định</h2>
+        <button class="review-modal-close" type="button" id="close-review-modal" aria-label="Đóng">×</button>
+      </div>
+      <div class="review-modal-body">
+        <p class="review-hint">Vui lòng chọn ít nhất một lý do để hoàn tất kiểm định bài viết.</p>
+        <div class="review-reason-list">
+          <label class="review-reason-item">
+            <input type="checkbox" name="review_reason" value="medical">
+            <span>Nội dung có thông tin chuyên môn chính xác</span>
+          </label>
+          <label class="review-reason-item">
+            <input type="checkbox" name="review_reason" value="safe">
+            <span>Nội dung an toàn và không gây hiểu nhầm cho mẹ bầu</span>
+          </label>
+          <label class="review-reason-item">
+            <input type="checkbox" name="review_reason" value="helpful">
+            <span>Nội dung hữu ích cho cộng đồng MomCare</span>
+          </label>
+        </div>
+      </div>
+      <div class="review-modal-actions">
+        <button type="button" class="review-btn" id="cancel-review-modal">Hủy</button>
+        <button type="button" class="review-btn primary" id="confirm-review-modal">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  {% include 'auth/post_detail.html' %}
+
+  <script src="{% load static %}{% static 'js/auth.js' %}"></script>
+  <script>
+    const menuButton = document.getElementById('post-menu-btn');
+    const postMenu = document.getElementById('post-menu');
+    const editPostTrigger = document.getElementById('edit-post-trigger');
+    const deletePostTrigger = document.getElementById('delete-post-trigger');
+    const editPostModal = document.getElementById('edit-post-modal');
+    const deletePostModal = document.getElementById('delete-post-modal');
+    const closeEditModal = document.getElementById('close-edit-modal');
+    const cancelEditPost = document.getElementById('cancel-edit-post');
+    const cancelDeletePost = document.getElementById('cancel-delete-post');
+    const confirmDeletePost = document.getElementById('confirm-delete-post');
+    const editPostForm = document.getElementById('edit-post-form');
+    const modePublic = document.getElementById('mode-public');
+    const modeAnonymous = document.getElementById('mode-anonymous');
+    const goProfileInfoBtn = document.getElementById('go-profile-info');
+    const reviewReasonModal = document.getElementById('review-reason-modal');
+    const closeReviewModalBtn = document.getElementById('close-review-modal');
+    const cancelReviewModalBtn = document.getElementById('cancel-review-modal');
+    const confirmReviewModalBtn = document.getElementById('confirm-review-modal');
+    let activeReviewTargetId = '';
+
+    function openPostModal(modal) {
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePostModal(modal) {
+      modal.classList.remove('show');
+      if (!editPostModal.classList.contains('show') && !deletePostModal.classList.contains('show')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    menuButton.addEventListener('click', function (event) {
+      event.stopPropagation();
+      postMenu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', function () {
+      postMenu.classList.remove('show');
+    });
+
+    editPostTrigger.addEventListener('click', function (event) {
+      event.stopPropagation();
+      postMenu.classList.remove('show');
+      openPostModal(editPostModal);
+    });
+
+    deletePostTrigger.addEventListener('click', function (event) {
+      event.stopPropagation();
+      postMenu.classList.remove('show');
+      openPostModal(deletePostModal);
+    });
+
+    closeEditModal.addEventListener('click', function () {
+      closePostModal(editPostModal);
+    });
+
+    cancelEditPost.addEventListener('click', function () {
+      closePostModal(editPostModal);
+    });
+
+    cancelDeletePost.addEventListener('click', function () {
+      closePostModal(deletePostModal);
+    });
+
+    confirmDeletePost.addEventListener('click', function () {
+      closePostModal(deletePostModal);
+    });
+
+    editPostModal.addEventListener('click', function () {
+      closePostModal(editPostModal);
+    });
+
+    deletePostModal.addEventListener('click', function () {
+      closePostModal(deletePostModal);
+    });
+
+    editPostForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      closePostModal(editPostModal);
+    });
+
+    modePublic.addEventListener('click', function () {
+      modePublic.classList.add('active');
+      modeAnonymous.classList.remove('active');
+    });
+
+    modeAnonymous.addEventListener('click', function () {
+      modeAnonymous.classList.add('active');
+      modePublic.classList.remove('active');
+    });
+
+    function resetReviewReasons() {
+      document.querySelectorAll('#review-reason-modal input[name="review_reason"]').forEach(function (checkbox) {
+        checkbox.checked = false;
+      });
+    }
+
+    document.querySelectorAll('.verify-trigger').forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (button.classList.contains('verified')) {
+          return;
+        }
+        activeReviewTargetId = button.dataset.reviewTarget || '';
+        openModal(reviewReasonModal);
+      });
+    });
+
+    closeReviewModalBtn.addEventListener('click', function () {
+      closeModal(reviewReasonModal);
+      resetReviewReasons();
+    });
+
+    cancelReviewModalBtn.addEventListener('click', function () {
+      closeModal(reviewReasonModal);
+      resetReviewReasons();
+    });
+
+    confirmReviewModalBtn.addEventListener('click', function () {
+      const selectedReasons = document.querySelectorAll('#review-reason-modal input[name="review_reason"]:checked');
+      if (!selectedReasons.length) {
+        alert('Vui lòng chọn ít nhất một lý do kiểm định.');
+        return;
+      }
+
+      if (activeReviewTargetId) {
+        const status = document.getElementById(activeReviewTargetId);
+        const trigger = document.querySelector('.verify-trigger[data-review-target="' + activeReviewTargetId + '"]');
+        if (status) {
+          status.classList.add('show');
+        }
+        if (trigger) {
+          trigger.classList.add('verified');
+          trigger.setAttribute('aria-label', 'Bài viết đã được kiểm duyệt');
+        }
+      }
+
+      closeModal(reviewReasonModal);
+      resetReviewReasons();
+      activeReviewTargetId = '';
+    });
+
+    goProfileInfoBtn.addEventListener('click', function () {
+      window.location.href = goProfileInfoBtn.dataset.href;
+    });
+
+    function syncUserDisplay() {
+      const user = JSON.parse(localStorage.getItem('momcare_user') || '{}');
+      const fallbackName = document.getElementById('profile-name').textContent.trim();
+      const rawName = (user.fullName || user.name || user.username || '').trim();
+
+      // Ignore one-letter values (e.g. "M") to avoid replacing full display names.
+      const displayName = rawName.length > 1 ? rawName : fallbackName;
+      const initial = displayName.charAt(0).toUpperCase();
+      const headerAvatar = document.getElementById('user-avatar-display');
+      const dropdownAvatar = document.getElementById('dropdown-avatar-display');
+      const dropdownName = document.getElementById('user-name-display');
+
+      document.getElementById('profile-title-name').textContent = displayName;
+      document.getElementById('profile-name').textContent = displayName;
+      document.getElementById('post-user-name').textContent = displayName;
+      document.getElementById('profile-avatar').childNodes[0].nodeValue = initial;
+      document.getElementById('composer-avatar').textContent = initial;
+      document.getElementById('post-avatar').textContent = initial;
+
+      if (headerAvatar) headerAvatar.textContent = initial;
+      if (dropdownAvatar) dropdownAvatar.textContent = initial;
+      if (dropdownName) dropdownName.textContent = displayName;
+    }
+
+    document.addEventListener('DOMContentLoaded', syncUserDisplay);
+  </script>
+</body>
+</html>
