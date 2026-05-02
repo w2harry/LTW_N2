@@ -1,0 +1,174 @@
+<style>
+  #review-detail-modal,
+  #review-reason-modal {
+    z-index: 1900;
+    padding: 12px;
+  }
+
+  #review-detail-modal .review-modal-card,
+  #review-reason-modal .review-modal-card {
+    width: min(760px, 100%);
+    max-height: min(92vh, 900px);
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e8d2dc;
+    box-shadow: 0 20px 42px rgba(22, 18, 28, 0.28);
+  }
+
+  #review-detail-modal .review-detail-scroll,
+  #review-reason-modal .review-modal-body {
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  #review-detail-modal .review-detail-scroll {
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #review-detail-modal .review-detail-head,
+  #review-reason-modal .review-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #edf1f6;
+  }
+
+  #review-detail-modal .review-modal-close,
+  #review-reason-modal .review-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #8f97a8;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  #review-detail-modal #review-add-action,
+  #review-reason-modal .review-modal-actions {
+    border-top: 1px solid #edf1f6;
+    padding: 12px 18px;
+  }
+
+  #review-reason-modal .review-modal-body {
+    padding: 12px 18px;
+  }
+
+  #review-reason-modal .review-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  @media (max-width: 640px) {
+    #review-detail-modal .review-modal-card,
+    #review-reason-modal .review-modal-card {
+      width: 100%;
+      max-height: 94vh;
+      border-radius: 10px;
+    }
+
+    #review-detail-modal .review-detail-head,
+    #review-reason-modal .review-modal-head,
+    #review-detail-modal .review-detail-scroll,
+    #review-reason-modal .review-modal-body,
+    #review-detail-modal #review-add-action,
+    #review-reason-modal .review-modal-actions {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    #review-reason-modal .review-modal-actions {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+    }
+
+    #review-reason-modal .review-btn {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+</style>
+
+<div id="review-detail-modal" class="modal-overlay">
+  <div class="review-modal-card" onclick="event.stopPropagation()">
+    <div class="review-detail-head">
+      <h2 style="font-size:18px; font-weight:600; color:#1f2430; margin: 0;">Chi tiết kiểm duyệt</h2>
+      <button type="button" class="review-modal-close" onclick="closeModal(document.getElementById('review-detail-modal'))" aria-label="Đóng">&times;</button>
+    </div>
+
+    <div class="review-detail-scroll">
+      <div style="border: 1px solid #ebd7df; border-radius: 10px; padding: 12px; background: #fcf8fa;">
+        <div id="review-post-title" style="font-size:16px; font-weight:700; color:#1f2430; margin-bottom: 6px;"></div>
+        <div id="review-post-content" style="font-size:14px; color:#414a5c; line-height: 1.55; white-space: pre-wrap;"></div>
+      </div>
+
+      <div id="review-status-summary" style="font-size:13px; color:#6f778a;"></div>
+      <div id="review-history-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+      <div id="review-empty-state" style="display:none; font-size:14px; color:#7a8192; border:1px dashed #e4d5dc; border-radius:10px; padding:12px; text-align:center;">
+        Bài viết này chưa có lượt kiểm duyệt nào.
+      </div>
+    </div>
+
+    <div id="review-add-action" style="display:none;">
+      <button type="button" id="btn-add-review" class="modal-btn" style="background:#f6eef3; color:#b3567d; border: 1px solid #b3567d;">Thêm kiểm duyệt của tôi</button>
+    </div>
+  </div>
+</div>
+
+<div id="review-reason-modal" class="modal-overlay">
+  <div class="review-modal-card" onclick="event.stopPropagation()">
+    <div class="review-modal-head">
+      <h2 class="review-modal-title">Chọn lý do kiểm định</h2>
+      <button class="review-modal-close" type="button" id="close-review-modal" aria-label="Đóng">×</button>
+    </div>
+    <div class="review-modal-body">
+      <p class="review-hint">Vui lòng chọn ít nhất một lý do để hoàn tất kiểm định bài viết.</p>
+      <div class="review-reason-list">
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="accurate">
+          <span>Bài viết chứa nội dung phù hợp với kiến thức y khoa hiện hành</span>
+        </label>
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="safe">
+          <span>Thông tin trong bài viết an toàn cho mẹ và bé</span>
+        </label>
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="useful">
+          <span>Bài viết cung cấp kiến thức chăm sóc sức khỏe hữu ích</span>
+        </label>
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="nutrition">
+          <span>Thông tin dinh dưỡng đã được kiểm chứng</span>
+        </label>
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="expert">
+          <span>Nội dung phù hợp với khuyến nghị của chuyên gia</span>
+        </label>
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="confirmed">
+          <span>Thông tin trong bài viết đã được bác sĩ xác nhận</span>
+        </label>
+        <label class="review-reason-item">
+          <input type="checkbox" name="review_reason" value="reference">
+          <span>Bài viết có giá trị tham khảo</span>
+        </label>
+      </div>
+      <label class="review-note-label" for="review-note-textarea">Ghi chú thêm (tùy chọn)</label>
+      <textarea id="review-note-textarea" class="review-note-textarea" placeholder="Nhập ghi chú kiểm định cho bài viết..."></textarea>
+    </div>
+    <div class="review-modal-actions">
+      <button type="button" class="review-btn" id="cancel-review-modal">Hủy</button>
+      <button type="button" class="review-btn primary" id="confirm-review-modal">Xác nhận</button>
+    </div>
+  </div>
+</div>

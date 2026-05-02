@@ -1,0 +1,221 @@
+{% load static %}
+{% extends 'admin_base.html' %}
+
+{% block title %}Bảng điều khiển nâng cao - MomCare Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .stats-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+  .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .stat-label { color: #999; font-size: 13px; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 700; color: #333; }
+  .stat-change { font-size: 12px; color: #28a745; margin-top: 8px; }
+  
+  .section { background: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .section h2 { margin: 0 0 20px 0; font-size: 18px; color: #333; }
+  
+  .activity-list { list-style: none; padding: 0; margin: 0; }
+  .activity-item { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-desc { font-size: 14px; color: #333; }
+  .activity-admin { font-size: 12px; color: #999; }
+  .activity-time { font-size: 12px; color: #999; }
+  
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+  th { background: #f9f9f9; font-weight: 600; color: #717c91; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 30px;">
+  <h1 style="font-size: 28px; margin-bottom: 30px; color: #333;">📊 Bảng Điều Khiển Nâng Cao</h1>
+  
+  <!-- Key Stats -->
+  <div class="stats-grid-4">
+    <div class="stat-card">
+      <div class="stat-label">👥 Tổng Người Dùng</div>
+      <div class="stat-value">{{ stats.total_users }}</div>
+      <div class="stat-change">{{ stats.inactive_users }} không hoạt động</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">📝 Tổng Bài Viết</div>
+      <div class="stat-value">{{ stats.total_posts }}</div>
+      <div class="stat-change">{{ stats.hidden_posts }} ẩn</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">💬 Tổng Bình Luận</div>
+      <div class="stat-value">{{ stats.total_comments }}</div>
+      <div class="stat-change">{{ stats.verified_posts }} bài được verify</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-label">⚠️ Báo Cáo Đợi Xử Lý</div>
+      <div class="stat-value" style="color: #dc3545;">{{ stats.pending_reports }}</div>
+      <div class="stat-change" style="color: #dc3545;">{{ stats.total_reports }} tổng cộng</div>
+    </div>
+  </div>
+
+  <!-- Daily Activity -->
+  <div class="section">
+    <h2>📅 Hoạt Động Hôm Nay</h2>
+    <div class="stats-grid-4">
+      <div class="stat-card">
+        <div class="stat-label">Bài Viết</div>
+        <div class="stat-value">{{ stats.today_posts }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Bình Luận</div>
+        <div class="stat-value">{{ stats.today_comments }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Báo Cáo Mới</div>
+        <div class="stat-value">{{ stats.today_reports }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Bác Sĩ</div>
+        <div class="stat-value">{{ stats.doctors }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Period Statistics -->
+  <div class="section">
+    <h2>📈 Thống Kê Theo Thời kỳ</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Thời kỳ</th>
+          <th>Bài Viết</th>
+          <th>Bình Luận</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hôm Nay</td>
+          <td><strong>{{ stats.today_posts }}</strong></td>
+          <td><strong>{{ stats.today_comments }}</strong></td>
+        </tr>
+        <tr>
+          <td>7 Ngày Qua</td>
+          <td>{{ stats.week_posts }}</td>
+          <td>{{ stats.week_comments }}</td>
+        </tr>
+        <tr>
+          <td>30 Ngày Qua</td>
+          <td>{{ stats.month_posts }}</td>
+          <td>{{ stats.month_comments }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Content -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div class="section">
+      <h2>🔥 Bài Viết Nổi Bật (Theo Bình Luận)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tiêu Đề</th>
+            <th style="width: 80px;">Bình Luận</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for post in top_posts %}
+          <tr>
+            <td style="font-size: 13px;">
+              <a href="{% url 'post_detail' post.id %}" style="color: #c9507f; text-decoration: none;">
+                {{ post.title|truncatewords:6 }}
+              </a>
+            </td>
+            <td style="text-align: center; font-weight: 600;">{{ post.comment_count }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" style="text-align: center; color: #999;">Không có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>👑 Người Dùng Hoạt Động (Bài Viết)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tên Người Dùng</th>
+            <th style="width: 80px;">Bài Viết</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in top_users %}
+          <tr>
+            <td style="font-size: 13px;">
+              <a href="{% url 'profile_view' user.username %}" style="color: #c9507f; text-decoration: none;">
+                {{ user.get_full_name|default:user.username }}
+              </a>
+            </td>
+            <td style="text-align: center; font-weight: 600;">{{ user.post_count }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="2" style="text-align: center; color: #999;">Không có dữ liệu</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Admin Activity -->
+  <div class="section">
+    <h2>📋 Hoạt Động Admin Gần Đây</h2>
+    <ul class="activity-list">
+      {% for log in recent_logs %}
+      <li class="activity-item">
+        <div>
+          <div class="activity-desc">{{ log.action_description }}</div>
+          <div class="activity-admin">by <strong>{{ log.admin.username }}</strong></div>
+        </div>
+        <div class="activity-time">{{ log.created_at|date:"H:i, d/m" }}</div>
+      </li>
+      {% empty %}
+      <li class="activity-item" style="text-align: center; color: #999;">Không có hoạt động</li>
+      {% endfor %}
+    </ul>
+    <a href="{% url 'admin_activity_logs' %}" style="display: inline-block; margin-top: 15px; color: #c9507f; text-decoration: none; font-size: 13px;">
+      Xem tất cả hoạt động →
+    </a>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <h2>⚡ QuickLinks</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+      <a href="{% url 'admin_user_management' %}" style="display: block; padding: 15px; background: #f8eef3; color: #c9507f; text-decoration: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+        👥 Quản Lý Người Dùng
+      </a>
+      <a href="{% url 'admin_moderation' %}" style="display: block; padding: 15px; background: #f8eef3; color: #c9507f; text-decoration: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+        📝 Duyệt Nội Dung
+      </a>
+      <a href="{% url 'admin_reports' %}" style="display: block; padding: 15px; background: #f8eef3; color: #c9507f; text-decoration: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+        ⚠️ Báo Cáo ({{ stats.pending_reports }})
+      </a>
+      <a href="{% url 'admin_notifications' %}" style="display: block; padding: 15px; background: #f8eef3; color: #c9507f; text-decoration: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+        🔔 Thông Báo
+      </a>
+      <a href="{% url 'admin_settings' %}" style="display: block; padding: 15px; background: #f8eef3; color: #c9507f; text-decoration: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+        ⚙️ Cài Đặt
+      </a>
+      <a href="{% url 'admin_activity_logs' %}" style="display: block; padding: 15px; background: #f8eef3; color: #c9507f; text-decoration: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; transition: all 0.2s;">
+        📋 Lịch Sử
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,80 @@
+<footer class="mc-footer">
+  <!-- Main Footer Content -->
+  <div class="mc-footer-main">
+    <div class="mc-footer-container">
+      <div class="mc-footer-grid">
+        <!-- Brand Column -->
+        <div class="mc-footer-column">
+          <a href="{% url 'landing' %}" class="mc-footer-brand" aria-label="MomCare">
+            <svg class="mc-footer-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span>MomCare</span>
+          </a>
+          <p class="mc-footer-tagline">Đồng hành cùng mẹ bầu trong mọi bước đi</p>
+        </div>
+
+        <!-- Product Column -->
+        <div class="mc-footer-column">
+          <h5 class="mc-footer-column-title">Khám phá</h5>
+          <ul class="mc-footer-list">
+            <li><a href="{% url 'landing' %}">Trang chủ</a></li>
+            <li><a href="{% url 'forum' %}">Diễn đàn cộng đồng</a></li>
+            <li><a href="{% url 'profile' %}">Trang cá nhân</a></li>
+            {% if request.user.is_superuser %}
+            <li><a href="/admin/">Admin panel</a></li>
+            {% elif request.user.is_staff %}
+            <li><a href="/admin-panel/">Admin panel</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Resources Column -->
+        <div class="mc-footer-column">
+          <h5 class="mc-footer-column-title">Tài nguyên</h5>
+          <ul class="mc-footer-list">
+            <li><a href="javascript:void(0);" onclick="return false;">Hướng dẫn người mới</a></li>
+            <li><a href="javascript:void(0);" onclick="return false;">Câu hỏi thường gặp</a></li>
+            <li><a href="javascript:void(0);" onclick="return false;">Nguyên tắc cộng đồng</a></li>
+            <li><a href="javascript:void(0);" onclick="return false;">Blog bài viết</a></li>
+          </ul>
+        </div>
+
+        <!-- Support Column -->
+        <div class="mc-footer-column">
+          <h5 class="mc-footer-column-title">Hỗ trợ</h5>
+          <ul class="mc-footer-list">
+            <li><a href="javascript:void(0);" onclick="return false;">Liên hệ chúng tôi</a></li>
+            <li><a href="javascript:void(0);" onclick="return false;">Báo cáo vấn đề</a></li>
+            <li><a href="javascript:void(0);" onclick="return false;">Yêu cầu tính năng</a></li>
+            <li><a href="javascript:void(0);" onclick="return false;">Trở thành chuyên gia</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Column -->
+        <div class="mc-footer-column">
+          <h5 class="mc-footer-column-title">Liên hệ</h5>
+          <div class="mc-footer-contact">
+            <p><strong>Hotline:</strong> 1900 6868</p>
+            <p><strong>Email:</strong> hotro@momcare.vn</p>
+            <p><strong>Địa chỉ:</strong><br>123 Ngũ Hành Sơn, Đà Nẵng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Bottom -->
+  <div class="mc-footer-bottom">
+    <div class="mc-footer-container">
+      <div class="mc-footer-copyright">
+        &copy; 2026 MomCare. Tất cả quyền được bảo lưu.
+      </div>
+      <div class="mc-footer-legal">
+        <a href="{% url 'landing' %}#privacy">Chính sách bảo mật</a>
+        <a href="{% url 'landing' %}#terms">Điều khoản sử dụng</a>
+        <a href="{% url 'landing' %}#cookies">Cookie</a>
+      </div>
+    </div>
+  </div>
+</footer>

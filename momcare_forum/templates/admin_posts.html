@@ -1,0 +1,166 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}Quản lý bài viết - MomCare{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý bài viết</h1>
+      <p class="page-subtitle">Xem và quản lý tất cả bài viết trên diễn đàn</p>
+    </div>
+  </div>
+
+  <section class="duo-metric-grid">
+    <article class="duo-metric-card">
+      <div class="metric-label">Tổng bài viết</div>
+      <div class="number" id="total-posts-count">{{ total_posts|default:0 }}</div>
+    </article>
+    <article class="duo-metric-card">
+      <div class="metric-label">Bài viết chờ duyệt</div>
+      <div class="number">{{ unverified_count|default:0 }}</div>
+    </article>
+  </section>
+
+  <div class="table-card">
+    <div class="table-title" style="display: flex; justify-content: space-between; align-items: center;">
+      <span>Danh sách bài viết</span>
+      <div class="search-box-inline" style="display:flex; gap:8px; align-items:center;">
+        <form method="get" style="display:flex; gap:8px; align-items:center;">
+          <input type="date" name="date_from" value="{{ date_from }}" style="height: 36px; border-radius: 8px; border: 1px solid #ddd; padding: 0 8px; font-size: 13px;">
+          <input type="date" name="date_to" value="{{ date_to }}" style="height: 36px; border-radius: 8px; border: 1px solid #ddd; padding: 0 8px; font-size: 13px;">
+          <button type="submit" class="btn-ghost" style="height:36px;">Lọc</button>
+        </form>
+        <input type="text" id="post-search-input" class="search-input" placeholder="Tìm tiêu đề, nội dung..." style="width: 250px; height: 36px; border-radius: 8px; border: 1px solid #ddd; padding: 0 12px; font-size: 14px;">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Người đăng</th>
+            <th>Tiêu đề</th>
+            <th>Danh mục</th>
+            <th>Ngày đăng</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="posts-table-body">
+          {% for post in posts %}
+          <tr class="post-row">
+            <td>
+              <div class="admin-user-cell">
+                <div class="admin-avatar">{{ post.author.first_name|first|default:post.author.username|first }}</div>
+                <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+              </div>
+            </td>
+            <td class="post-title-cell">{{ post.title }}</td>
+            <td><span class="badge-soft blue">{{ post.category.name }}</span></td>
+            <td>{{ post.created_at|date:"d/m/Y" }}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-ghost" title="Xem"><span data-admin-icon="view" aria-hidden="true"></span></button>
+                <button class="btn-danger-outline" title="Xóa"><span data-admin-icon="delete" aria-hidden="true"></span></button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not posts %}
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 20px;">Không có bài viết nào</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <style>
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .admin-table th, .admin-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .admin-table th {
+      background: #fdfdfd;
+      font-weight: 600;
+      color: #717c91;
+    }
+    .admin-user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-soft {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-soft.blue { background: #e3f2fd; color: #1e88e5; }
+    .badge-soft.green { background: #e8f5e9; color: #43a047; }
+    .badge-soft.orange { background: #fff3e0; color: #fb8c00; }
+    .badge-soft.purple { background: #f3e5f5; color: #8e24aa; }
+    .badge-soft.gray { background: #f5f5f5; color: #757575; }
+    
+    .table-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .table-actions button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const searchInput = document.getElementById('post-search-input');
+      const tableBody = document.getElementById('posts-table-body');
+      const rows = tableBody.getElementsByClassName('post-row');
+      const totalCountEl = document.getElementById('total-posts-count');
+
+      // Check for search query in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q');
+      if (query) {
+        searchInput.value = query;
+        filterPosts(query);
+      }
+
+      searchInput.addEventListener('input', function() {
+        filterPosts(this.value);
+      });
+
+      function filterPosts(query) {
+        const term = query.toLowerCase();
+        let visibleCount = 0;
+
+        Array.from(rows).forEach(row => {
+          const title = row.querySelector('.post-title-cell').textContent.toLowerCase();
+          const author = row.querySelector('.admin-user-cell span').textContent.toLowerCase();
+          
+          if (title.includes(term) || author.includes(term)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        if (totalCountEl) {
+          totalCountEl.textContent = visibleCount;
+        }
+      }
+    });
+  </script>
+{% endblock %}

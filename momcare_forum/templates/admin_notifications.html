@@ -1,0 +1,231 @@
+{% load static %}
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý Thông báo - Admin MomCare{% endblock %}
+
+{% block extra_css %}
+<style>
+  .main-content { padding: 30px; }
+  .page-header { margin-bottom: 30px; }
+  .page-header h1 { font-size: 28px; margin: 0 0 10px 0; color: #333; }
+  .page-header p { color: #666; margin: 0; }
+  
+  .notification-form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+  .form-group input,
+  .form-group textarea,
+  .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: inherit; }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { outline: none; border-color: #c9507f; box-shadow: 0 0 5px rgba(201, 80, 127, 0.2); }
+  
+  .form-actions { display: flex; gap: 15px; margin-top: 25px; }
+  .btn-submit { padding: 12px 30px; background: #c9507f; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+  .btn-submit:hover { background: #a63f67; }
+  .btn-reset { padding: 12px 30px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+  .btn-reset:hover { background: #e0e0e0; }
+  
+  .recipient-selector { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; }
+  .recipient-selector h3 { margin-top: 0; color: #333; }
+  .recipient-options { display: flex; gap: 15px; }
+  .recipient-option { display: flex; align-items: center; }
+  .recipient-option input { margin-right: 8px; }
+  .recipient-option label { margin: 0; cursor: pointer; }
+  
+  .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+  .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  
+  .notifications-history { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .notifications-history h2 { color: #333; margin-top: 0; }
+  .notification-log { display: flex; padding: 15px; background: #f9f9f9; border-radius: 6px; margin-bottom: 15px; align-items: flex-start; }
+  .notification-log-time { min-width: 120px; color: #999; font-size: 13px; }
+  .notification-log-content { flex: 1; }
+  .notification-log-title { font-weight: 600; color: #333; margin-bottom: 4px; }
+  .notification-log-meta { color: #666; font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+  <div class="page-header">
+    <h1>📢 Quản lý Thông báo Hệ thống</h1>
+    <p>Tạo và gửi thông báo đến người dùng</p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form id="notificationForm" class="notification-form">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="title">Tiêu đề <span style="color: red;">*</span></label>
+      <input type="text" id="title" name="title" required placeholder="Nhập tiêu đề thông báo">
+    </div>
+
+    <div class="form-group">
+      <label for="message">Nội dung <span style="color: red;">*</span></label>
+      <textarea id="message" name="message" required placeholder="Nhập nội dung thông báo"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Loại thông báo</label>
+      <select id="notificationType" name="notification_type">
+        <option value="system">Thông báo hệ thống</option>
+        <option value="comment">Bình luận mới</option>
+        <option value="verified">Bài viết được kiểm duyệt</option>
+        <option value="report_processed">Báo cáo được xử lý</option>
+      </select>
+    </div>
+
+    <div class="recipient-selector">
+      <h3>Người nhận</h3>
+      <div class="recipient-options">
+        <div class="recipient-option">
+          <input type="radio" id="allUsers" name="recipientType" value="all" checked>
+          <label for="allUsers">Gửi đến tất cả người dùng</label>
+        </div>
+        <div class="recipient-option">
+          <input type="radio" id="specificUsers" name="recipientType" value="specific">
+          <label for="specificUsers">Gửi đến người dùng cụ thể</label>
+        </div>
+      </div>
+      <div id="userSelectDiv" style="display: none; margin-top: 15px;">
+        <label for="userSelect" style="margin-bottom: 10px; display: block; font-weight: 500;">Chọn người dùng:</label>
+        <select id="userSelect" name="user_ids" multiple style="height: 200px;">
+          <!-- Users will be loaded via AJAX -->
+        </select>
+        <small style="color: #666;">Giữ Ctrl (Cmd trên Mac) để chọn nhiều</small>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-submit">📤 Gửi Thông báo</button>
+      <button type="reset" class="btn-reset">🔄 Xóa</button>
+    </div>
+  </form>
+
+  <div id="alertContainer"></div>
+
+  <div class="notifications-history">
+    <h2>📝 Lịch sử thông báo gần đây</h2>
+    <div id="notificationsList" style="max-height: 400px; overflow-y: auto;">
+      <!-- Will be populated by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle between all users and specific users
+  document.querySelectorAll('input[name="recipientType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const userSelectDiv = document.getElementById('userSelectDiv');
+      if (this.value === 'specific') {
+        userSelectDiv.style.display = 'block';
+        loadUsers();
+      } else {
+        userSelectDiv.style.display = 'none';
+      }
+    });
+  });
+
+  function loadUsers() {
+    // This would normally fetch users from an API
+    // For now, we'll use a placeholder
+    const userSelect = document.getElementById('userSelect');
+    if (userSelect.options.length === 0) {
+      fetch('/api/users-list/', {
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        data.users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = `${user.username} (${user.email})`;
+          userSelect.appendChild(option);
+        });
+      })
+      .catch(error => console.error('Error loading users:', error));
+    }
+  }
+
+  document.getElementById('notificationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('title').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const notificationType = document.getElementById('notificationType').value;
+    const recipientType = document.querySelector('input[name="recipientType"]:checked').value;
+    
+    if (!title || !message) {
+      showAlert('Tiêu đề và nội dung không được để trống', 'error');
+      return;
+    }
+
+    const data = {
+      title,
+      message,
+      notification_type: notificationType,
+      user_ids: recipientType === 'specific' ? 
+        Array.from(document.getElementById('userSelect').selectedOptions).map(o => o.value) : 
+        []
+    };
+
+    fetch('/api/notifications/create-system/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showAlert(`✅ ${data.message}`, 'success');
+        document.getElementById('notificationForm').reset();
+        addToHistory(title, message, data.notification_ids);
+      } else {
+        showAlert(`❌ Lỗi: ${data.error}`, 'error');
+      }
+    })
+    .catch(error => {
+      showAlert(`❌ Lỗi: ${error.message}`, 'error');
+    });
+  });
+
+  function addToHistory(title, message, ids) {
+    const list = document.getElementById('notificationsList');
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('vi-VN');
+    const dateStr = now.toLocaleDateString('vi-VN');
+    
+    const logItem = document.createElement('div');
+    logItem.className = 'notification-log';
+    logItem.innerHTML = `
+      <div class="notification-log-time">${timeStr}<br>${dateStr}</div>
+      <div class="notification-log-content">
+        <div class="notification-log-title">${title}</div>
+        <div class="notification-log-meta">
+          Gửi đến ${ids.length} người dùng • ID: ${ids.slice(0, 3).join(', ')}${ids.length > 3 ? '...' : ''}
+        </div>
+      </div>
+    `;
+    
+    list.insertBefore(logItem, list.firstChild);
+  }
+
+  // Load notification history on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // You can add code here to load notification history from the server
+  });
+</script>
+
+{% endblock %}

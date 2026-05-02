@@ -1,0 +1,56 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="mc-admin-dashboard">
+  <div class="mc-dashboard-head">
+    <h1>Bảng điều khiển Quản trị</h1>
+    <p>Quản lý toàn bộ hệ thống từ một nơi tập trung.</p>
+  </div>
+
+  <section class="mc-stats-grid">
+    <article class="mc-stat-card">
+      <h3>Tổng user</h3>
+      <p class="mc-stat-number">{{ mc_total_users }}</p>
+      <span>Tài khoản đã đăng ký</span>
+    </article>
+
+    <article class="mc-stat-card">
+      <h3>Tổng danh mục</h3>
+      <p class="mc-stat-number">{{ mc_total_categories }}</p>
+      <span>Danh mục đang hoạt động</span>
+    </article>
+
+    <article class="mc-stat-card">
+      <h3>Tổng báo cáo</h3>
+      <p class="mc-stat-number">{{ mc_total_reports }}</p>
+      <span>Báo cáo vi phạm đã gửi</span>
+    </article>
+  </section>
+
+  <section class="mc-feature-grid">
+    {% for app in app_list %}
+      {% for model in app.models %}
+      <article class="mc-feature-card" data-model-card="1">
+        <h2>{{ model.name }}</h2>
+        <p>Quản lý dữ liệu {{ model.name|lower }} với đầy đủ thao tác thêm, sửa và cập nhật trạng thái.</p>
+        <div class="mc-feature-actions">
+          {% if model.admin_url %}
+          <a href="{{ model.admin_url }}">Truy cập nhanh</a>
+          {% endif %}
+          {% if model.add_url %}
+          <a href="{{ model.add_url }}" data-add-link="1">Thêm mới</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    {% empty %}
+      <article class="mc-feature-card">
+        <h2>Chưa có module</h2>
+        <p>Hiện chưa có module nào khả dụng trong trang quản trị.</p>
+      </article>
+    {% endfor %}
+  </section>
+</div>
+
+{% endblock %}

@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - MomCare</title>
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5d8e4 0%, #e8bfd5 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .admin-login-container {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(32, 17, 26, 0.15);
+    }
+
+    .admin-login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .admin-login-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .admin-login-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2430;
+      margin: 0;
+    }
+
+    .admin-login-subtitle {
+      font-size: 14px;
+      color: #626d80;
+      margin-top: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2f3544;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e2d3db;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #f6eef3;
+      color: #33394a;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus {
+      border-color: #c9507f;
+      outline: none;
+      background: #fff;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: #c9507f;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 24px;
+    }
+
+    .btn-login:hover {
+      background: #b83a6f;
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      background: #fce7ec;
+      border: 1px solid #f5d8e4;
+      border-radius: 8px;
+      padding: 12px;
+      color: #c9507f;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: {% if error %}block{% else %}none{% endif %};
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .back-link a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #ead3dd;
+      border-radius: 10px;
+      color: #5d5367;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      background: #fff;
+      transition: all 0.2s ease;
+    }
+
+    .back-link a:hover {
+      border-color: #d7b7c6;
+      color: #3e3749;
+      background: #fff7fb;
+    }
+
+    @media (max-width: 480px) {
+      .admin-login-container {
+        padding: 24px;
+      }
+
+      .admin-login-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-login-container">
+    <div class="admin-login-header">
+      <div class="admin-login-icon">🔐</div>
+      <h1 class="admin-login-title">Admin Login</h1>
+      <p class="admin-login-subtitle">Đăng nhập vào admin panel</p>
+    </div>
+
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label" for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          class="form-input" 
+          placeholder="Nhập username" 
+          value="{{ username }}"
+          required
+          autofocus
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-input" 
+          placeholder="Nhập password" 
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn-login">Đăng nhập</button>
+    </form>
+
+    <div class="back-link">
+      <a href="/">← Về trang chủ</a>
+    </div>
+
+  </div>
+</body>
+</html>

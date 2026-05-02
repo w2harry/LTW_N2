@@ -1,0 +1,386 @@
+<!-- Post Detail Modal (Facebook Style) -->
+<div id="post-detail-modal" class="modal-overlay-post-detail" style="display: none;">
+  <div class="modal-card-post-detail" onclick="event.stopPropagation()">
+    <div class="modal-post-header">
+      <h3 id="modal-post-title" style="margin: 0; font-size: 20px; color: #1f2430; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; word-break: break-word;"></h3>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="modal-edit-post-btn" id="modal-edit-post-btn" style="display: none; background: #e8f0ff; border: none; color: #2563eb; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;" type="button" onclick="if (window.openProfileEditPostFromDetail) { window.openProfileEditPostFromDetail(); }"> Sửa</button>
+        <button class="modal-delete-post-btn" id="modal-delete-post-btn" style="display: none; background: #f5eef2; border: none; color: #d04763; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;" type="button"> Xóa</button>
+        <button class="modal-close-post-detail" onclick="closePostDetailModal()">&times;</button>
+      </div>
+    </div>
+
+    <div class="modal-post-body">
+      <!-- Post Content -->
+      <div id="modal-post-content">
+        <div class="modal-post-header-info">
+          <div class="modal-post-avatar" id="modal-post-avatar"></div>
+          <div style="flex: 1;">
+            <div class="modal-post-author" id="modal-post-author"></div>
+            <div class="modal-post-time" id="modal-post-time"></div>
+            <div id="modal-post-verification" class="modal-post-verification"></div>
+          </div>
+        </div>
+
+        <h2 id="modal-post-title-main" style="margin: 12px 0 8px; padding: 0 16px; font-size: 18px; color: #1f2430; font-weight: 700; line-height: 1.35; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;"></h2>
+        <div id="modal-post-content-text" class="modal-post-content-text" style="margin: 0; padding: 0 16px; color: #2b3242; line-height: 1.6;"></div>
+        
+        <div id="modal-post-images" class="modal-post-images" style="display: none;"></div>
+
+        <div class="modal-post-stats" style="padding: 12px 16px; border-top: 1px solid #f1e6ec; border-bottom: 1px solid #f1e6ec; font-size: 13px; color: #687082; margin: 8px 0 0 0;">
+          <span id="modal-post-likes">0 lượt thích</span>  
+          <span id="modal-post-comments-count">0 bình luận</span>
+        </div>
+
+        <div class="modal-post-actions" style="display: flex; gap: 8px; padding: 8px 16px; border-top: 1px solid #f1e6ec; border-bottom: 1px solid #f1e6ec; margin: 0;">
+          <button class="modal-action-btn like-post-btn" type="button" data-post-id="" style="flex: 1; border: 1px solid #e3d6dd; background: #fff; color: #5f6779; border-radius: 6px; height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span>Thích</span>
+          </button>
+          <button class="modal-action-btn open-comment-modal-btn" type="button" data-post-id="" style="flex: 1; border: 1px solid #e3d6dd; background: #fff; color: #5f6779; border-radius: 6px; height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Bình luận</span>
+          </button>
+          <button class="modal-action-btn share-post-btn" type="button" data-share-url="" style="flex: 1; border: 1px solid #e3d6dd; background: #fff; color: #5f6779; border-radius: 6px; height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+              <polyline points="16 6 12 2 8 6"></polyline>
+              <line x1="12" y1="2" x2="12" y2="15"></line>
+            </svg>
+            <span>Chia sẻ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div id="modal-comments-section" style="margin: 0; border-top: none; padding: 0;">
+        <!-- Comments List -->
+        <div id="modal-comments-list" style="max-height: 350px; overflow-y: auto; margin: 0; padding: 0;">
+          <!-- Comments will be dynamically inserted here -->
+        </div>
+
+        <!-- Add Comment Form -->
+        <div style="border-top: 1px solid #f1e6ec; padding: 12px 16px;">
+          <div id="modal-comment-mode" style="display:none; margin: 0 0 8px; font-size: 12px; color: #6b7280; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px;"></div>
+          <form id="modal-comment-form" onsubmit="submitModalComment(event)" style="padding: 0; margin: 0; display: flex; gap: 10px; align-items: flex-end;">
+            {% csrf_token %}
+            <input type="hidden" id="modal-comment-target-id" value="">
+            <input type="hidden" id="modal-comment-mode-type" value="create">
+            <textarea 
+              id="modal-comment-textarea" 
+              name="content" 
+              placeholder="Viết bình luận..." 
+              required 
+              style="flex: 1; border: 1px solid #e0d3db; border-radius: 18px; padding: 12px 16px; font-size: 14px; font-family: inherit; resize: none; min-height: 40px; max-height: 100px; outline: none; box-sizing: border-box; margin: 0; white-space: normal;"></textarea>
+            <button 
+              id="modal-comment-submit-btn"
+              type="submit" 
+              style="border: none; background: #c9507f; color: #fff; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 600; transition: background 0.2s; flex-shrink: 0;">
+              ➤
+            </button>
+          </form>
+          <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #6b7280; cursor: pointer;">
+              <input type="checkbox" id="modal-comment-anonymous" name="is_anonymous" value="1">
+              Bình luận ẩn danh
+            </label>
+            <button type="button" id="modal-comment-cancel-btn" onclick="resetModalCommentMode()" style="display:none; border: 1px solid #e5e7eb; background: #fff; color: #6b7280; border-radius: 999px; padding: 4px 10px; font-size: 12px; cursor: pointer;">Hủy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="image-zoom-overlay" class="image-zoom-overlay" onclick="closeImageZoom()" style="display: none;">
+  <button type="button" class="image-zoom-close" onclick="closeImageZoom(); event.stopPropagation();" aria-label="Đóng xem ảnh">×</button>
+  <img id="image-zoom-target" class="image-zoom-target" src="" alt="Ảnh phóng to" onclick="event.stopPropagation();">
+</div>
+
+<style>
+.modal-overlay-post-detail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-card-post-detail {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e0d3db;
+  gap: 12px;
+}
+
+.modal-close-post-detail {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #788091;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.modal-close-post-detail:hover {
+  color: #1f2430;
+}
+
+.modal-post-body {
+  padding: 0;
+}
+
+.modal-post-header-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 0;
+  padding: 12px 16px 0;
+}
+
+.modal-post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c9507f, #d66a95);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.modal-post-author {
+  font-weight: 700;
+  color: #1f2430;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.modal-post-time {
+  font-size: 12px;
+  color: #788091;
+  margin-top: 2px;
+}
+
+.modal-post-verification {
+  font-size: 12px;
+  color: #28a745;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.modal-post-content-text {
+  color: #2b3242;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  margin-top: 8px;
+  padding-bottom: 12px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+.modal-post-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.modal-post-images.single {
+  grid-template-columns: 1fr;
+}
+
+.modal-post-image-item {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eddfe7;
+  cursor: zoom-in;
+}
+
+.image-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2300;
+  background: rgba(12, 14, 20, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.image-zoom-target {
+  max-width: min(94vw, 1400px);
+  max-height: 90vh;
+  border-radius: 10px;
+  object-fit: contain;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.5);
+}
+
+.image-zoom-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.modal-action-btn {
+  text-decoration: none;
+}
+
+.modal-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.modal-action-btn:hover {
+  background: #f5f5f5 !important;
+  color: #c9507f !important;
+}
+
+#modal-comment-submit-btn:hover {
+  background: #a63f67 !important;
+}
+
+.modal-action-btn.like-post-btn.liked {
+  background: #ffe0e8 !important;
+  border-color: #d04763 !important;
+  color: #d04763 !important;
+}
+
+/* Comment Styles */
+.modal-comment-item {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 16px;
+  background: transparent;
+  border-radius: 0;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f1e6ec;
+}
+
+.modal-comment-item:last-child {
+  border-bottom: none;
+}
+
+.modal-comment-item:hover {
+  background: #faf8f9;
+}
+
+.modal-comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c9507f, #d66a95);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.modal-comment-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modal-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.modal-comment-author {
+  font-weight: 700;
+  color: #1f2430;
+}
+
+.modal-comment-time {
+  color: #788091;
+  font-size: 12px;
+}
+
+.modal-comment-content {
+  color: #2b3242;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  margin-top: 4px;
+}
+
+.modal-comments-empty {
+  text-align: center;
+  padding: 20px 16px;
+  color: #788091;
+  font-size: 13px;
+}
+
+#modal-comment-textarea {
+  font-family: inherit;
+  resize: none;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+</style>

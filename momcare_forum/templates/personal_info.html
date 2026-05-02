@@ -1,0 +1,651 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hồ sơ cá nhân - MomCare</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    body {
+      background: #f1e2e4;
+      color: #232734;
+    }
+
+    .info-wrapper {
+      max-width: 980px;
+      margin: 18px auto 28px;
+      padding: 0 10px;
+    }
+
+    .info-card {
+      background: #fff;
+      border: 1px solid #e8d9e0;
+      border-radius: 12px;
+      box-shadow: 0 6px 22px rgba(34, 31, 43, 0.08);
+      padding: 14px 16px 6px;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .info-title {
+      font-size: 30px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #1f2534;
+      margin-bottom: 4px;
+    }
+
+    .info-subtitle {
+      font-size: 13px;
+      color: #7a8192;
+    }
+
+    .info-close {
+      border: none;
+      background: transparent;
+      color: #9ba2b2;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .info-user {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .info-user-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f2dce7;
+      color: #c95382;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .info-name {
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: #1f2534;
+    }
+
+    .info-handle {
+      font-size: 13px;
+      color: #7e8698;
+      margin-top: 2px;
+    }
+
+    .edit-btn {
+      border: none;
+      border-radius: 10px;
+      height: 38px;
+      padding: 0 16px;
+      background: #e04f8b;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .info-table {
+      margin-top: 6px;
+      border-top: 1px solid #e8ebf2;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) 1.2fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 46px;
+      border-bottom: 1px solid #e8ebf2;
+      font-size: 14px;
+    }
+
+    .info-label {
+      color: #788094;
+    }
+
+    .info-value {
+      color: #222839;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .info-value-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .change-password-btn {
+      border: 1px solid #caafbe;
+      background: #f6ecf2;
+      border-radius: 8px;
+      color: #7f4762;
+      font-size: 12px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .edit-info-btn {
+      border: 1px solid #d9a8be;
+      background: #f9e8ef;
+      border-radius: 8px;
+      color: #9f3f68;
+      font-size: 12px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .modal-overlay-ui {
+      position: fixed;
+      inset: 0;
+      background: rgba(22, 24, 32, 0.48);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 14px;
+    }
+
+    .modal-overlay-ui.show {
+      display: flex;
+    }
+
+    .modal-ui-card {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e3d8df;
+      box-shadow: 0 12px 36px rgba(22, 24, 32, 0.22);
+      padding: 14px;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    .modal-ui-card.password {
+      max-width: 500px;
+      background: #f5e7ee;
+    }
+
+    .modal-ui-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-ui-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f2534;
+    }
+
+    .modal-ui-subtitle {
+      font-size: 12px;
+      color: #8a90a0;
+      margin-top: 2px;
+      margin-bottom: 8px;
+    }
+
+    .modal-ui-close {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      color: #9da4b2;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .form-block {
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2a3141;
+      margin-bottom: 6px;
+    }
+
+    .required-star {
+      color: #df4f75;
+      margin-left: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      border: 1px solid #dfe3ea;
+      border-radius: 8px;
+      height: 40px;
+      padding: 0 12px;
+      font-size: 14px;
+      color: #2b3140;
+      background: #fff;
+      font-family: inherit;
+    }
+
+    .form-control[readonly] {
+      background: #f7f8fb;
+      color: #9aa1b1;
+    }
+
+    .form-help {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #a0a6b5;
+    }
+
+    .form-actions {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      min-width: 84px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #d8dce5;
+      background: #fff;
+      color: #5d6576;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      min-width: 84px;
+      height: 40px;
+      border-radius: 8px;
+      border: none;
+      background: #d3528b;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .password-input-wrap {
+      position: relative;
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #98a1b3;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0;
+    }
+
+    @media (max-width: 768px) {
+      .info-title {
+        font-size: 24px;
+      }
+
+      .info-name {
+        font-size: 22px;
+      }
+
+      .info-user {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .edit-btn {
+        width: 100%;
+      }
+
+      .info-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        padding: 8px 0;
+      }
+
+      .info-value {
+        justify-self: start;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+
+  {% include '_notification_popup.html' %}
+
+  <main class="info-wrapper">
+    <section class="info-card">
+      <div class="info-header">
+        <div>
+          <div class="info-title">Hồ sơ cá nhân</div>
+          <div class="info-subtitle">Xem thông tin cá nhân của bạn</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="edit-info-btn" type="button" id="open-edit-info-modal">Chỉnh sửa thông tin</button>
+          <button class="info-close" type="button" id="close-info-page" data-href="{% url 'profile' %}">×</button>
+        </div>
+      </div>
+
+      <div class="info-user">
+        <div class="info-user-left">
+          <div class="info-avatar" id="profile-info-avatar">{{ target_user.first_name|default:target_user.username|slice:":1"|upper }}</div>
+          <div>
+            <div class="info-name" id="profile-info-fullname">
+              {{ target_user.get_full_name|default:target_user.username }}
+            </div>
+            <div class="info-handle" id="profile-info-username">@{{ target_user.username }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-table">
+        <div class="info-row">
+          <div class="info-label">Tên người dùng</div>
+          <div class="info-value" id="info-username-value">{{ target_user.username }}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Họ và tên</div>
+          <div class="info-value" id="info-fullname-value">{{ target_user.get_full_name|default:target_user.username }}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Email</div>
+          <div class="info-value" id="info-email-value">{{ target_user.email }}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Vai trò</div>
+          <div class="info-value">
+            {% if user_profile.user_type == 'doctor' %}
+              Bác sĩ/Chuyên gia
+            {% elif user_profile.user_type == 'admin' %}
+              Quản trị viên
+            {% else %}
+              Người dùng
+            {% endif %}
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Ngày tham gia</div>
+          <div class="info-value">{{ target_user.date_joined|date:"d/m/Y" }}</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Mật khẩu</div>
+          <div class="info-value">
+            <span class="info-value-group">
+              <span>************</span>
+              <button class="change-password-btn" type="button" id="open-change-password-modal">Đổi mật khẩu</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay-ui" id="edit-info-modal">
+    <div class="modal-ui-card" onclick="event.stopPropagation()">
+      <div class="modal-ui-head">
+        <div>
+          <div class="modal-ui-title">Chỉnh sửa thông tin cá nhân của bạn</div>
+        </div>
+        <button class="modal-ui-close" id="close-edit-info-modal" type="button">×</button>
+      </div>
+
+      <form id="edit-info-form">
+        <div class="form-block">
+          <label class="form-label" for="edit-username">Tên người dùng</label>
+          <input id="edit-username" class="form-control" type="text" value="{{ target_user.username }}" readonly>
+          <div class="form-help">Tên người dùng không thể thay đổi</div>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-fullname">Họ và tên <span class="required-star">*</span></label>
+          <input id="edit-fullname" class="form-control" type="text" value="{{ target_user.get_full_name }}" required>
+        </div>
+
+        <div class="form-block">
+          <label class="form-label" for="edit-email">Email</label>
+          <input id="edit-email" class="form-control" type="email" value="{{ target_user.email }}" readonly>
+          <div class="form-help">Email không thể thay đổi</div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="cancel-edit-info">Hủy</button>
+          <button type="submit" class="btn-primary">Cập nhật</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay-ui" id="change-password-modal">
+    <div class="modal-ui-card password" onclick="event.stopPropagation()">
+      <div class="modal-ui-head">
+        <div class="modal-ui-title">Đổi mật khẩu</div>
+        <button class="modal-ui-close" id="close-change-password-modal" type="button">×</button>
+      </div>
+      <div class="modal-ui-subtitle">Mật khẩu của bạn phải có tối thiểu 8 ký tự.</div>
+
+      <form id="change-password-form">
+        <div class="form-block password-input-wrap">
+          <input id="current-password" class="form-control" type="password" placeholder="Mật khẩu hiện tại" required>
+          <button class="toggle-pass-btn" type="button" data-target="current-password">👁</button>
+        </div>
+        <div class="form-block password-input-wrap">
+          <input id="new-password" class="form-control" type="password" placeholder="Mật khẩu mới" required>
+          <button class="toggle-pass-btn" type="button" data-target="new-password">👁</button>
+        </div>
+        <div class="form-block password-input-wrap">
+          <input id="confirm-password" class="form-control" type="password" placeholder="Xác nhận mật khẩu mới" required>
+          <button class="toggle-pass-btn" type="button" data-target="confirm-password">👁</button>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width:100%; margin-top: 4px;">Đổi mật khẩu</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260408a"></script>
+  <script src="{% static 'js/auth.js' %}?v=20260502a"></script>
+  <script>
+    const closeInfoPageBtn = document.getElementById('close-info-page');
+    const openEditInfoBtn = document.getElementById('open-edit-info-modal');
+    const openChangePasswordBtn = document.getElementById('open-change-password-modal');
+    const editInfoModal = document.getElementById('edit-info-modal');
+    const closeEditInfoBtn = document.getElementById('close-edit-info-modal');
+    const cancelEditInfoBtn = document.getElementById('cancel-edit-info');
+    const editInfoForm = document.getElementById('edit-info-form');
+    const changePasswordModal = document.getElementById('change-password-modal');
+    const closeChangePasswordBtn = document.getElementById('close-change-password-modal');
+    const changePasswordForm = document.getElementById('change-password-form');
+    const togglePasswordButtons = document.querySelectorAll('.toggle-pass-btn');
+
+    function openModal(el) {
+      if (!el) return;
+      el.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(el) {
+      if (!el) return;
+      el.classList.remove('show');
+      const hasOpenedModal = (editInfoModal && editInfoModal.classList.contains('show'))
+        || (changePasswordModal && changePasswordModal.classList.contains('show'));
+      if (!hasOpenedModal) {
+        document.body.style.overflow = '';
+      }
+    }
+
+
+    closeInfoPageBtn?.addEventListener('click', function () {
+      window.location.href = closeInfoPageBtn.dataset.href;
+    });
+
+    function openEditInfoModal() {
+      if (editInfoForm) {
+        document.getElementById('edit-fullname').value = document.getElementById('info-fullname-value').textContent.trim();
+        document.getElementById('edit-email').value = document.getElementById('info-email-value').textContent.trim();
+      }
+      openModal(editInfoModal);
+    }
+
+    openEditInfoBtn?.addEventListener('click', openEditInfoModal);
+
+    closeEditInfoBtn?.addEventListener('click', function () {
+      closeModal(editInfoModal);
+    });
+
+    cancelEditInfoBtn?.addEventListener('click', function () {
+      closeModal(editInfoModal);
+    });
+
+    editInfoModal?.addEventListener('click', function () {
+      closeModal(editInfoModal);
+    });
+
+    editInfoForm?.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const fullName = document.getElementById('edit-fullname').value.trim();
+
+      if (!fullName) {
+        notifyUser('Vui lòng nhập đầy đủ họ tên', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/profile/update/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            full_name: fullName
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          notifyUser(data.error || 'Không thể cập nhật thông tin', 'error');
+          return;
+        }
+
+        document.getElementById('profile-info-fullname').textContent = data.full_name;
+        document.getElementById('info-fullname-value').textContent = data.full_name;
+        document.getElementById('profile-info-avatar').textContent = data.full_name.charAt(0).toUpperCase();
+
+        closeModal(editInfoModal);
+        notifyUser('Cập nhật thông tin thành công', 'success');
+      } catch (error) {
+        notifyUser('Không thể cập nhật thông tin lúc này', 'error');
+      }
+    });
+
+    function openPasswordModal() {
+      if (changePasswordForm) {
+        changePasswordForm.reset();
+      }
+      openModal(changePasswordModal);
+    }
+
+    openChangePasswordBtn?.addEventListener('click', openPasswordModal);
+
+    closeChangePasswordBtn?.addEventListener('click', function () {
+      closeModal(changePasswordModal);
+    });
+
+    changePasswordModal?.addEventListener('click', function () {
+      closeModal(changePasswordModal);
+    });
+
+    changePasswordForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        notifyUser('Vui lòng nhập đầy đủ thông tin', 'error');
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        notifyUser('Mật khẩu mới phải có ít nhất 8 ký tự', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        notifyUser('Mật khẩu xác nhận không khớp', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/profile/change-password/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+            confirm_password: confirmPassword
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          notifyUser(data.error || 'Không thể đổi mật khẩu', 'error');
+          return;
+        }
+
+        closeModal(changePasswordModal);
+        notifyUser('Đổi mật khẩu thành công', 'success');
+      } catch (error) {
+        notifyUser('Không thể đổi mật khẩu lúc này', 'error');
+      }
+    });
+
+    togglePasswordButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        input.type = input.type === 'password' ? 'text' : 'password';
+      });
+    });
+  </script>
+  {% include 'footer.html' %}
+</body>
+</html>
+

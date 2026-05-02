@@ -1,0 +1,257 @@
+{% load static %}
+{% extends 'admin_base.html' %}
+
+{% block title %}Duyệt Nội Dung - MomCare Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+  .filter-btn { padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; text-decoration: none; color: #333; transition: all 0.2s; }
+  .filter-btn.active { background: #c9507f; color: white; border-color: #c9507f; }
+  
+  .post-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; gap: 20px; }
+  .post-card.reported { border-left: 4px solid #dc3545; }
+  .post-card.hidden { opacity: 0.6; background: #f9f9f9; }
+  
+  .post-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #c9507f, #e8879f); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+  
+  .post-content { flex: 1; }
+  .post-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
+  .post-author { display: flex; align-items: center; gap: 8px; }
+  .post-author-name { font-weight: 600; color: #333; }
+  .post-author-time { font-size: 12px; color: #999; }
+  
+  .post-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+  .post-excerpt { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 10px; }
+  .post-meta { font-size: 12px; color: #999; display: flex; gap: 15px; }
+  
+  .post-actions { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .action-btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .btn-view { background: #eef0f7; color: #5b7aa1; }
+  .btn-view:hover { background: #5b7aa1; color: white; }
+  .btn-hide { background: #f8d7da; color: #721c24; }
+  .btn-hide:hover { background: #dc3545; color: white; }
+  .btn-verify { background: #d4edda; color: #155724; }
+  .btn-verify:hover { background: #28a745; color: white; }
+  .btn-delete { background: #f8d7da; color: #721c24; }
+  .btn-delete:hover { background: #dc3545; color: white; }
+  
+  .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+  .badge-reported { background: #f8d7da; color: #721c24; }
+  .badge-verified { background: #d4edda; color: #155724; }
+  .badge-hidden { background: #f0f0f0; color: #666; }
+  
+  .bulk-actions { background: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .bulk-select { display: flex; gap: 10px; align-items: center; }
+  .bulk-select input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 30px;">
+  <h1 style="font-size: 28px; margin-bottom: 30px; color: #333; display:flex; align-items:center; gap:10px;"><span data-admin-icon="edit" aria-hidden="true"></span><span>Duyệt Nội Dung</span></h1>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <a href="?filter=pending" class="filter-btn {% if filter_type == 'pending' %}active{% endif %}">
+      ⏳ Chờ Duyệt ({{ total_pending }})
+    </a>
+    <a href="?filter=reported" class="filter-btn {% if filter_type == 'reported' %}active{% endif %}">
+      <span data-admin-icon="warning" aria-hidden="true"></span>
+      <span>Báo Cáo ({{ total_reported }})</span>
+    </a>
+    <a href="?filter=hidden" class="filter-btn {% if filter_type == 'hidden' %}active{% endif %}">
+      <span data-admin-icon="hide" aria-hidden="true"></span>
+      <span>Ẩn ({{ total_hidden }})</span>
+    </a>
+    <a href="?filter=all" class="filter-btn {% if filter_type == 'all' %}active{% endif %}">
+      Tất Cả
+    </a>
+  </div>
+
+  <!-- Search -->
+  <form method="get" style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <input type="text" name="q" placeholder="Tìm bài viết..." value="{{ query }}" style="flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px;">
+    <button type="submit" style="padding: 10px 20px; background: #c9507f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Tìm</button>
+  </form>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions">
+    <div class="bulk-select">
+      <input type="checkbox" id="selectAll">
+      <label>Chọn tất cả</label>
+    </div>
+    <select id="bulkAction" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
+      <option value="">-- Hành động --</option>
+      <option value="hide">Ẩn bài viết</option>
+      <option value="unhide">Hiển thị bài viết</option>
+      <option value="verify">Verify bài viết</option>
+      <option value="delete">Xóa bài viết</option>
+    </select>
+    <button onclick="executeBulkAction()" style="padding: 8px 16px; background: #c9507f; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Thực Hiện</button>
+  </div>
+
+  <!-- Posts -->
+  <div id="postsList">
+    {% for post in posts %}
+    <div class="post-card {% if post.report_count > 0 %}reported{% endif %} {% if post.is_hidden %}hidden{% endif %}" data-post-id="{{ post.id }}">
+      <div class="post-avatar">{{ post.author.first_name|first|default:post.author.username|first }}</div>
+      
+      <div class="post-content">
+        <div class="post-header">
+          <div class="post-author">
+            <div>
+              <div class="post-author-name">{{ post.author.get_full_name|default:post.author.username }}</div>
+              <div class="post-author-time">{{ post.created_at|date:"H:i, d/m/Y" }}</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            {% if post.is_hidden %}
+              <span class="badge badge-hidden"><span data-admin-icon="hide" aria-hidden="true"></span><span>Ẩn</span></span>
+            {% endif %}
+            {% if post.verified_by_expert %}
+              <span class="badge badge-verified"><span data-admin-icon="verify" aria-hidden="true"></span><span>Verify</span></span>
+            {% endif %}
+            {% if post.report_count > 0 %}
+              <span class="badge badge-reported"><span data-admin-icon="warning" aria-hidden="true"></span><span>{{ post.report_count }} báo</span></span>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="post-title">{{ post.title }}</div>
+        <div class="post-excerpt">{{ post.content|truncatewords:30 }}</div>
+        
+        <div class="post-meta">
+          <span><span data-admin-icon="category" aria-hidden="true"></span><span>{{ post.category.name }}</span></span>
+          <span><span data-admin-icon="comment" aria-hidden="true"></span><span>{{ post.comments.count }} bình luận</span></span>
+          <span><span data-admin-icon="heart" aria-hidden="true"></span><span>{{ post.total_likes }} lượt thích</span></span>
+        </div>
+      </div>
+      
+      <div class="post-actions">
+        <input type="checkbox" class="post-checkbox" value="{{ post.id }}">
+        
+        <a href="{% url 'post_detail' post.id %}" class="action-btn btn-view"><span data-admin-icon="view" aria-hidden="true"></span><span>Xem</span></a>
+        
+        {% if post.is_hidden %}
+          <button class="action-btn btn-view" onclick="unhidePost({{ post.id }})"><span data-admin-icon="show" aria-hidden="true"></span><span>Hiện</span></button>
+        {% else %}
+          <button class="action-btn btn-hide" onclick="hidePost({{ post.id }})"><span data-admin-icon="hide" aria-hidden="true"></span><span>Ẩn</span></button>
+        {% endif %}
+        
+        {% if not post.verified_by_expert %}
+          <button class="action-btn btn-verify" onclick="verifyPost({{ post.id }})"><span data-admin-icon="verify" aria-hidden="true"></span><span>Verify</span></button>        {% else %}
+          <button class="action-btn btn-unverify" onclick="unverifyPost({{ post.id }});" style="background: #f8a8bd; color: #8b2f45;"><span data-admin-icon="delete" aria-hidden="true"></span><span>Gỡ Verify</span></button>        {% endif %}
+        
+        <button class="action-btn btn-delete" onclick="deletePost({{ post.id }})"><span data-admin-icon="delete" aria-hidden="true"></span><span>Xóa</span></button>
+      </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; color: #999;">
+      Không có bài viết nào
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  async function parseJsonSafely(response) {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Phiên đăng nhập đã hết hạn hoặc máy chủ trả về dữ liệu không hợp lệ.');
+    }
+    return response.json();
+  }
+
+  document.getElementById('selectAll').addEventListener('change', function() {
+    document.querySelectorAll('.post-checkbox').forEach(cb => {
+      cb.checked = this.checked;
+    });
+  });
+
+  async function executeBulkAction() {
+    const action = document.getElementById('bulkAction').value;
+    if (!action) {
+      showAlert('Chọn một hành động', 'error');
+      return;
+    }
+
+    const postIds = Array.from(document.querySelectorAll('.post-checkbox:checked')).map(cb => parseInt(cb.value));
+    if (postIds.length === 0) {
+      showAlert('Chọn ít nhất một bài viết', 'error');
+      return;
+    }
+
+    const confirmed = await showConfirm(`Thực hiện hành động này trên ${postIds.length} bài viết?`);
+    if (!confirmed) return;
+
+    fetch('/api/admin/posts/bulk-action/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ post_ids: postIds, action })
+    })
+    .then(parseJsonSafely)
+    .then(data => {
+      if (data.success) {
+        showAlert(data.message, 'success');
+        location.reload();
+      } else {
+        showAlert('Lỗi: ' + data.error, 'error');
+      }
+    })
+    .catch((error) => {
+      showAlert(error.message || 'Không thể xử lý hành động quản lý vi phạm.', 'error');
+    });
+  }
+
+  function hidePost(postId) {
+    executeBulkAction_single(postId, 'hide');
+  }
+
+  function unhidePost(postId) {
+    executeBulkAction_single(postId, 'unhide');
+  }
+
+  function verifyPost(postId) {
+    executeBulkAction_single(postId, 'verify');
+  }
+
+  async function unverifyPost(postId) {
+    const confirmed = await showConfirm('Gỡ kiểm duyệt bài viết này?');
+    if (!confirmed) return;
+    executeBulkAction_single(postId, 'unverify');
+  }
+
+  async function deletePost(postId) {
+    const confirmed = await showConfirm('Xóa bài viết này?');
+    if (!confirmed) return;
+    executeBulkAction_single(postId, 'delete');
+  }
+
+  function executeBulkAction_single(postId, action) {
+    fetch('/api/admin/posts/bulk-action/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ post_ids: [postId], action })
+    })
+    .then(parseJsonSafely)
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        showAlert('Lỗi: ' + data.error, 'error');
+      }
+    })
+    .catch((error) => {
+      showAlert(error.message || 'Không thể xử lý hành động quản lý vi phạm.', 'error');
+    });
+  }
+</script>
+
+{% endblock %}

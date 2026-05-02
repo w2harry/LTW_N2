@@ -1,0 +1,1071 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ post.title }} - MomCare</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    :root {
+      --bg-main: #f6f7fb;
+      --card: #ffffff;
+      --line: #e2e5ee;
+      --text: #1d2433;
+      --muted: #6d768a;
+      --brand: #cc4e80;
+      --brand-soft: #fff1f7;
+      --ok-bg: #ecfff2;
+      --ok-line: #a5e0ba;
+      --ok-text: #1f6a41;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 560px at 10% -10%, #ffe7f2, transparent 58%),
+        radial-gradient(1000px 520px at 92% 0%, #e6eefc, transparent 62%),
+        var(--bg-main);
+    }
+
+    .breadcrumbs {
+      max-width: 1180px;
+      margin: 16px auto 0;
+      padding: 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .breadcrumbs a {
+      color: var(--brand);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .detail-layout {
+      max-width: 1180px;
+      margin: 16px auto 42px;
+      padding: 0 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(14, 19, 35, 0.08);
+      overflow: hidden;
+    }
+
+    .post-hero {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff, #fff9fc);
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .author-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .author-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #f4d5e3;
+      color: #ad4f79;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .author-name {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .author-meta {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .post-id {
+      border: 1px solid var(--line);
+      background: #f9faff;
+      color: #5f6880;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 7px 10px;
+      white-space: nowrap;
+    }
+
+    .post-title {
+      margin: 0;
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1.22;
+      letter-spacing: -0.01em;
+      color: #1a2232;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .meta-chips {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #e6d7df;
+      background: var(--brand-soft);
+      color: #73455c;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .section {
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf0f5;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #58617a;
+    }
+
+    .verify-banner {
+      margin: 0;
+      border: 1px solid var(--ok-line);
+      background: var(--ok-bg);
+      color: var(--ok-text);
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 10px 12px;
+    }
+
+    .post-content {
+      margin: 0;
+      color: #293347;
+      font-size: 16px;
+      line-height: 1.85;
+      white-space: pre-wrap;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .gallery-grid.one {
+      grid-template-columns: 1fr;
+    }
+
+    .media-item {
+      border: 1px solid #e7e9f0;
+      border-radius: 12px;
+      background: #fbfcff;
+      overflow: hidden;
+    }
+
+    .post-image {
+      width: 100%;
+      height: clamp(210px, 29vw, 360px);
+      object-fit: cover;
+      display: block;
+      background: #f3f6fb;
+      cursor: zoom-in;
+    }
+
+    .media-fallback {
+      display: none;
+      min-height: 200px;
+      padding: 18px;
+      color: #6a7286;
+      background: #f6f8fd;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .media-item.is-broken .media-fallback {
+      display: flex;
+    }
+
+    .image-zoom-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2300;
+      background: rgba(12, 14, 20, 0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .image-zoom-target {
+      max-width: min(94vw, 1400px);
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 12px 38px rgba(0, 0, 0, 0.5);
+    }
+
+    .image-zoom-close {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .post-actions {
+      padding: 14px 18px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .post-actions-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .post-actions-meta {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .btn-action {
+      height: 38px;
+      border: 1px solid #dce1ea;
+      border-radius: 999px;
+      background: #ffffff;
+      padding: 0 14px;
+      color: #58627a;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn-action svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .btn-action.liked {
+      border-color: #dbadc2;
+      background: #fff2f8;
+      color: #b24776;
+    }
+
+    .btn-back {
+      border: 1px solid #dce1ea;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #5d667c;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 12px;
+      margin-left: 18px;
+      margin-top: 4px;
+      display: inline-flex;
+      width: fit-content;
+    }
+
+    .comments-card {
+      padding: 16px;
+    }
+
+    .comments-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .comments-title {
+      margin: 0;
+      font-size: 20px;
+      color: #1f2738;
+    }
+
+    .comments-count {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .comment-form textarea {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid #d9dee8;
+      border-radius: 12px;
+      background: #fcfdff;
+      padding: 10px 12px;
+      font-size: 14px;
+      resize: vertical;
+      margin-bottom: 10px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .comment-submit {
+      border: none;
+      background: var(--brand);
+      color: #fff;
+      height: 38px;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #comments-list {
+      margin: 0;
+      padding: 0;
+    }
+
+    .comment-item {
+      border-top: 1px solid #edf0f5;
+      padding: 12px 0;
+    }
+
+    .comment-item:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .comment-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .comment-author {
+      color: #253047;
+      font-weight: 700;
+    }
+
+    .comment-content {
+      margin: 0;
+      color: #2a3448;
+      white-space: pre-wrap;
+      line-height: 1.65;
+    }
+
+    .side-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 88px;
+    }
+
+    .side-card {
+      padding: 14px;
+    }
+
+    .side-title {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #1f2838;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat-item {
+      border: 1px solid #e6e9f0;
+      border-radius: 10px;
+      background: #f9fbff;
+      padding: 10px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1f2838;
+    }
+
+    .info-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .info-list li {
+      border-top: 1px dashed #e4e8f1;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #5f6981;
+      line-height: 1.55;
+    }
+
+    .info-list li:first-child {
+      border-top: none;
+      padding-top: 2px;
+    }
+
+    .side-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f8f2f7;
+      color: #6b5a66;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .manage-row {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .manage-row a,
+    .manage-row form button {
+      border: 1px solid #dbe0ea;
+      border-radius: 10px;
+      height: 36px;
+      padding: 0 12px;
+      text-decoration: none;
+      color: #556079;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      cursor: pointer;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .manage-row form {
+      margin: 0;
+    }
+
+    @media (max-width: 980px) {
+      .detail-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-wrap {
+        position: static;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .post-hero,
+      .section,
+      .comments-card {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .hero-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .post-id {
+        width: fit-content;
+      }
+
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+  {% include '_notification_popup.html' %}
+
+  <div class="breadcrumbs">
+    <a href="{% url 'forum' %}">Diễn đàn</a> / Chi tiết bài viết
+  </div>
+
+  <main class="detail-layout">
+    <section class="stack">
+      <article class="card">
+        <div class="post-hero">
+          <div class="hero-top">
+            <div class="author-row">
+              <div class="author-avatar">
+                {% if post.privacy == 'anonymous' and not can_view_anonymous_identity %}
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 22px; height: 22px;">
+                  <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                {% else %}
+                {{ post.author.first_name|default:post.author.username|slice:":1"|upper }}
+                {% endif %}
+              </div>
+              <div>
+                <div class="author-name">
+                  {% if post.privacy == 'anonymous' and not can_view_anonymous_identity %}
+                  Người dùng ẩn danh
+                  {% else %}
+                  {{ post.author.get_full_name|default:post.author.username }}
+                  {% endif %}
+                </div>
+                <div class="author-meta">{{ post.created_at|timesince }} trước</div>
+              </div>
+            </div>
+            <div class="post-id">Bài viết #{{ post.id }}</div>
+          </div>
+
+          
+
+          <div class="meta-chips">
+            <span class="chip">Danh mục: {{ post.category.name }}</span>
+            <span class="chip">Hiển thị: {% if post.privacy == 'anonymous' %}Ẩn danh{% else %}Công khai{% endif %}</span>
+            <span class="chip">Cập nhật: {{ post.updated_at|date:'d/m/Y H:i' }}</span>
+          </div>
+        </div>
+
+
+        {% if post.verified_by_expert %}
+        <section class="section">
+
+          <div class="verify-banner">
+            Bài viết đã được kiểm duyệt bởi
+            <strong>{{ post.verified_by.get_full_name|default:post.verified_by.username }}</strong>
+            {% if post.verified_at %}vào {{ post.verified_at|date:'d/m/Y H:i' }}{% endif %}.
+            {% if post.verification_reason_labels %}
+            Lý do: {{ post.verification_reason_labels|join:', ' }}.
+            {% endif %}
+            {% if post.verification_note %}
+            Ghi chú: {{ post.verification_note }}.
+            {% endif %}
+          </div>
+        </section>
+        {% endif %}
+        <section class="section">
+<h1 class="post-title">{{ post.title }}</h1>
+
+          <p class="post-content">{{ post.content }}</p>
+        </section>
+
+        {% if post.images.exists %}
+        <section class="section">
+          <h2 class="section-title">Hình ảnh đính kèm ({{ post.images.count }})</h2>
+          <div class="gallery-grid {% if post.images.all|length == 1 %}one{% endif %}">
+            {% for img in post.images.all %}
+            <figure class="media-item">
+              <img
+                src="{{ img.display_image_url }}"
+                alt="{{ img.alt_text|default:post.title }}"
+                class="post-image"
+                loading="lazy"
+                onerror="this.closest('.media-item').classList.add('is-broken'); this.remove();"
+              >
+              <div class="media-fallback">Không thể tải ảnh này.</div>
+            </figure>
+            {% endfor %}
+          </div>
+        </section>
+        {% elif post.image %}
+        <section class="section">
+          <h2 class="section-title">Hình ảnh đính kèm</h2>
+          <figure class="media-item">
+            <img
+              src="{{ post.display_image_url }}"
+              alt="{{ post.title }}"
+              class="post-image"
+              loading="lazy"
+              onerror="this.closest('.media-item').classList.add('is-broken'); this.remove();"
+            >
+            <div class="media-fallback">Không thể tải ảnh này.</div>
+          </figure>
+        </section>
+        {% endif %}
+
+        <div class="post-actions">
+          <div class="post-actions-left">
+            <button id="like-post-btn" class="btn-action {% if user_liked %}liked{% endif %}" type="button" data-post-id="{{ post.id }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span id="like-post-count">{{ post.likes.count }}</span>
+            </button>
+            <button id="share-post-btn" class="btn-action" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+              <span>Chia sẻ</span>
+            </button>
+          </div>
+          <div class="post-actions-meta" id="post-comments-meta">{{ comments|length }} bình luận</div>
+        </div>
+      </article>
+
+      <section class="card comments-card">
+        <div class="comments-head">
+          <h2 class="comments-title">Bình luận</h2>
+          <span class="comments-count" id="comments-count">{{ comments|length }} bình luận</span>
+        </div>
+
+        {% if user.is_authenticated %}
+        <form id="comment-form" class="comment-form">
+          {% csrf_token %}
+          <input type="hidden" id="comment-mode" value="create">
+          <input type="hidden" id="comment-target-id" value="">
+          <div id="comment-mode-banner" style="display:none; margin-bottom:8px; font-size: 12px; color: #6b7280; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px;"></div>
+          <textarea id="comment-textarea" name="content" placeholder="Viết bình luận của bạn..." required></textarea>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px;">
+            <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#6b7280; cursor:pointer;">
+              <input type="checkbox" id="comment-anonymous" name="is_anonymous" value="1">
+              Bình luận ẩn danh
+            </label>
+            <button type="button" id="comment-cancel-btn" style="display:none; border:1px solid #dce1ea; background:#fff; color:#5d667c; border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer;">Hủy</button>
+          </div>
+          <button type="submit" class="comment-submit">Gửi bình luận</button>
+        </form>
+        {% else %}
+        <p style="margin: 6px 0 14px; color:#6d7688;">Bạn cần đăng nhập để bình luận.</p>
+        {% endif %}
+
+        <div id="comments-list"></div>
+      </section>
+    </section>
+
+    <aside class="side-wrap">
+      <div class="card side-card">
+        <h3 class="side-title">Tổng quan nhanh</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-label">Lượt thích</div>
+            <div class="stat-value" id="side-like-count">{{ post.likes.count }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Bình luận</div>
+            <div class="stat-value" id="side-comments-count">{{ comments|length }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Ảnh đính kèm</div>
+            <div class="stat-value">
+              {% if post.images.exists %}
+              {{ post.images.count }}
+              {% elif post.image %}
+              1
+              {% else %}
+              0
+              {% endif %}
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Trạng thái</div>
+            <div class="stat-value">{% if post.verified_by_expert %}Đã kiểm duyệt{% else %}Chưa kiểm duyệt{% endif %}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card side-card">
+        <h3 class="side-title">Thông tin thêm</h3>
+        <ul class="info-list">
+          <li><strong>Tác giả:</strong> {% if post.privacy == 'anonymous' and not can_view_anonymous_identity %}Người dùng ẩn danh{% else %}{{ post.author.get_full_name|default:post.author.username }}{% endif %}</li>
+          <li><strong>Tên đăng nhập:</strong> {% if post.privacy == 'anonymous' and not can_view_anonymous_identity %}Ẩn danh{% else %}{{ post.author.username }}{% endif %}</li>
+          <li><strong>Danh mục:</strong> {{ post.category.name }}</li>
+          <li><strong>Hiển thị:</strong> {% if post.privacy == 'anonymous' %}Ẩn danh{% else %}Công khai{% endif %}</li>
+          <li><strong>Đăng lúc:</strong> {{ post.created_at|date:'d/m/Y H:i' }}</li>
+          <li><strong>Cập nhật:</strong> {{ post.updated_at|date:'d/m/Y H:i' }}</li>
+        </ul>
+
+        <div class="side-note">Mẹo: bạn có thể dùng nút Chia sẻ để sao chép link bài viết và gửi cho người thân hoặc bác sĩ tư vấn.</div>
+
+        {% if is_author %}
+        <div class="manage-row">
+          <a href="{% url 'profile_view' post.author.username %}">Quản lý tại trang cá nhân</a>
+          <form method="POST" action="{% url 'delete_post' post.id %}" data-confirm-message="Xóa bài viết này?">
+            {% csrf_token %}
+            <button type="submit">Xóa bài viết</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </aside>
+  </main>
+
+  <div id="image-zoom-overlay" class="image-zoom-overlay" onclick="closeImageZoom()" style="display: none;">
+    <button type="button" class="image-zoom-close" onclick="closeImageZoom(); event.stopPropagation();" aria-label="Đóng xem ảnh">×</button>
+    <img id="image-zoom-target" class="image-zoom-target" src="" alt="Ảnh phóng to" onclick="event.stopPropagation();">
+  </div>
+
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260419c"></script>
+  <script src="{% static 'js/auth.js' %}?v=20260502a"></script>
+  <script>
+    document.querySelectorAll('.post-image').forEach((img) => {
+      img.addEventListener('click', () => {
+        openImageZoom(img.src, img.alt || 'Ảnh bài viết');
+      });
+    });
+
+    const likePostBtn = document.getElementById('like-post-btn');
+    const likePostCount = document.getElementById('like-post-count');
+    const sideLikeCount = document.getElementById('side-like-count');
+
+    if (likePostBtn) {
+      likePostBtn.addEventListener('click', async function () {
+        const postId = likePostBtn.dataset.postId;
+        try {
+          const response = await fetch(`/api/post/${postId}/like/`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken')
+            }
+          });
+
+          const data = await response.json();
+          if (response.status === 401) {
+            if (typeof showAlert === 'function') showAlert('Vui lòng đăng nhập để thích bài viết.', 'error');
+            if (typeof openModal === 'function') openModal('auth-modal');
+            return;
+          }
+          if (!response.ok || !data.success) {
+            if (typeof showAlert === 'function') showAlert(data.error || 'Không thể thích bài viết.', 'error');
+            return;
+          }
+
+          likePostBtn.classList.toggle('liked', Boolean(data.liked));
+          likePostCount.textContent = data.total_likes;
+          if (sideLikeCount) sideLikeCount.textContent = data.total_likes;
+        } catch (error) {
+          if (typeof showAlert === 'function') showAlert('Có lỗi khi xử lý lượt thích.', 'error');
+        }
+      });
+    }
+
+    const sharePostBtn = document.getElementById('share-post-btn');
+    if (sharePostBtn) {
+      sharePostBtn.addEventListener('click', async function () {
+        const url = window.location.href;
+        if (navigator.share) {
+          try {
+            await navigator.share({ url: url });
+            return;
+          } catch (error) {}
+        }
+        await navigator.clipboard.writeText(url);
+        if (typeof showAlert === 'function') showAlert('Đã sao chép liên kết bài viết.', 'success');
+      });
+    }
+
+    function escapeDetailCommentHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function setCommentCounts(total) {
+      const countEl = document.getElementById('comments-count');
+      const postMetaCommentsEl = document.getElementById('post-comments-meta');
+      const sideCommentsCountEl = document.getElementById('side-comments-count');
+      if (countEl) countEl.textContent = `${total} bình luận`;
+      if (postMetaCommentsEl) postMetaCommentsEl.textContent = `${total} bình luận`;
+      if (sideCommentsCountEl) sideCommentsCountEl.textContent = `${total}`;
+    }
+
+    function buildDetailTree(comments) {
+      const byId = new Map();
+      const roots = [];
+      comments.forEach((c) => byId.set(c.id, { ...c, children: [] }));
+      byId.forEach((c) => {
+        if (c.parent_id && byId.has(c.parent_id)) byId.get(c.parent_id).children.push(c);
+        else roots.push(c);
+      });
+      return roots;
+    }
+
+    function renderDetailComment(comment, depth) {
+      const marginLeft = Math.min(depth * 20, 60);
+      const anonymousBadge = comment.is_anonymous ? '<span style="font-size:11px;color:#7c3aed;background:#f3e8ff;border-radius:999px;padding:2px 8px;">Ẩn danh</span>' : '';
+      const editedBadge = comment.updated_at && comment.updated_at !== comment.created_at ? '<span style="font-size:11px;color:#94a3b8;">(đã sửa)</span>' : '';
+      const actions = [];
+      if (comment.can_reply) {
+        actions.push(`<button type="button" onclick="detailReplyComment(${comment.id}, '${escapeDetailCommentHtml(comment.author)}')" style="border:none;background:transparent;color:#4f46e5;font-size:12px;cursor:pointer;padding:0;">Trả lời</button>`);
+      }
+      if (comment.can_edit) {
+        actions.push(`<button type="button" onclick="detailEditComment(${comment.id})" style="border:none;background:transparent;color:#0f766e;font-size:12px;cursor:pointer;padding:0;">Sửa</button>`);
+      }
+      if (comment.can_delete) {
+        actions.push(`<button type="button" onclick="detailDeleteComment(${comment.id})" style="border:none;background:transparent;color:#b91c1c;font-size:12px;cursor:pointer;padding:0;">Xóa</button>`);
+      }
+
+      return `
+        <div class="comment-item" style="margin-left:${marginLeft}px" data-comment-id="${comment.id}" data-comment-content="${escapeDetailCommentHtml(comment.content)}" data-comment-anonymous="${comment.is_anonymous ? '1' : '0'}">
+          <div class="comment-meta">
+            <span class="comment-author">${escapeDetailCommentHtml(comment.author)}</span>
+            ${anonymousBadge}
+            <span>•</span>
+            <span>${escapeDetailCommentHtml(comment.created_at)}</span>
+            ${editedBadge}
+          </div>
+          <div class="comment-content">${escapeDetailCommentHtml(comment.content)}</div>
+          ${actions.length ? `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">${actions.join('')}</div>` : ''}
+        </div>
+        ${(comment.children || []).map((child) => renderDetailComment(child, depth + 1)).join('')}
+      `;
+    }
+
+    async function fetchDetailComments() {
+      const commentsList = document.getElementById('comments-list');
+      if (!commentsList) return;
+      try {
+        const response = await fetch(`/api/post/{{ post.id }}/comments/`);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          commentsList.innerHTML = '<div class="comment-item">Không thể tải bình luận.</div>';
+          setCommentCounts(0);
+          return;
+        }
+
+        if (!data.comments.length) {
+          commentsList.innerHTML = '<div class="comment-item" id="empty-comments">Chưa có bình luận nào.</div>';
+          setCommentCounts(0);
+          return;
+        }
+
+        const roots = buildDetailTree(data.comments);
+        commentsList.innerHTML = roots.map((c) => renderDetailComment(c, 0)).join('');
+        setCommentCounts(data.total_comments || data.comments.length);
+      } catch (error) {
+        commentsList.innerHTML = '<div class="comment-item">Không thể tải bình luận.</div>';
+      }
+    }
+
+    const commentForm = document.getElementById('comment-form');
+    const commentMode = document.getElementById('comment-mode');
+    const commentTargetId = document.getElementById('comment-target-id');
+    const commentModeBanner = document.getElementById('comment-mode-banner');
+    const commentCancelBtn = document.getElementById('comment-cancel-btn');
+    const commentAnonymous = document.getElementById('comment-anonymous');
+
+    function resetDetailCommentMode() {
+      if (commentMode) commentMode.value = 'create';
+      if (commentTargetId) commentTargetId.value = '';
+      if (commentModeBanner) {
+        commentModeBanner.style.display = 'none';
+        commentModeBanner.textContent = '';
+      }
+      if (commentCancelBtn) commentCancelBtn.style.display = 'none';
+      if (commentAnonymous) commentAnonymous.checked = false;
+      const textarea = document.getElementById('comment-textarea');
+      if (textarea) textarea.value = '';
+      const submitBtn = commentForm?.querySelector('.comment-submit');
+      if (submitBtn) submitBtn.textContent = 'Gửi bình luận';
+    }
+
+    window.detailReplyComment = function detailReplyComment(commentId, authorName) {
+      if (!commentForm) return;
+      commentMode.value = 'reply';
+      commentTargetId.value = String(commentId);
+      commentModeBanner.style.display = 'block';
+      commentModeBanner.textContent = `Đang trả lời: ${authorName || 'bình luận này'}`;
+      commentCancelBtn.style.display = 'inline-flex';
+      const textarea = document.getElementById('comment-textarea');
+      if (textarea) textarea.focus();
+    };
+
+    window.detailEditComment = function detailEditComment(commentId) {
+      if (!commentForm) return;
+      const row = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+      if (!row) return;
+      commentMode.value = 'edit';
+      commentTargetId.value = String(commentId);
+      commentModeBanner.style.display = 'block';
+      commentModeBanner.textContent = 'Đang chỉnh sửa bình luận';
+      commentCancelBtn.style.display = 'inline-flex';
+      const textarea = document.getElementById('comment-textarea');
+      if (textarea) {
+        textarea.value = row.dataset.commentContent || '';
+        textarea.focus();
+      }
+      if (commentAnonymous) {
+        commentAnonymous.checked = row.dataset.commentAnonymous === '1';
+      }
+      const submitBtn = commentForm.querySelector('.comment-submit');
+      if (submitBtn) submitBtn.textContent = 'Lưu chỉnh sửa';
+    };
+
+    window.detailDeleteComment = async function detailDeleteComment(commentId) {
+      const confirmed = await showConfirm('Bạn có chắc muốn xóa bình luận này?');
+      if (!confirmed) return;
+      try {
+        const response = await fetch(`/comment/${commentId}/delete/`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          if (typeof showAlert === 'function') showAlert(data.error || 'Không thể xóa bình luận.', 'error');
+          return;
+        }
+        resetDetailCommentMode();
+        await fetchDetailComments();
+        if (typeof showAlert === 'function') showAlert('Đã xóa bình luận.', 'success');
+      } catch (error) {
+        if (typeof showAlert === 'function') showAlert('Có lỗi khi xóa bình luận.', 'error');
+      }
+    };
+
+    if (commentCancelBtn) {
+      commentCancelBtn.addEventListener('click', resetDetailCommentMode);
+    }
+
+    if (commentForm) {
+      commentForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const textarea = document.getElementById('comment-textarea');
+        const content = textarea.value.trim();
+        if (!content) {
+          if (typeof showAlert === 'function') showAlert('Vui lòng nhập nội dung bình luận.', 'error');
+          return;
+        }
+
+        const mode = commentMode.value || 'create';
+        const targetId = commentTargetId.value;
+
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('is_anonymous', commentAnonymous && commentAnonymous.checked ? '1' : '0');
+        formData.append('csrfmiddlewaretoken', commentForm.querySelector('input[name="csrfmiddlewaretoken"]').value);
+        if (mode === 'reply' && targetId) {
+          formData.append('parent_id', targetId);
+        }
+
+        const endpoint = mode === 'edit' && targetId
+          ? `/comment/${targetId}/edit/`
+          : `/post/{{ post.id }}/comment/`;
+
+        const submitBtn = commentForm.querySelector('.comment-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = mode === 'edit' ? 'Đang lưu...' : 'Đang gửi...';
+
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: formData
+          });
+
+          if (response.status === 401) {
+            if (typeof openModal === 'function') openModal('auth-modal');
+            else window.location.href = "{% url 'forum' %}";
+            return;
+          }
+
+          const data = await response.json();
+          if (!response.ok || !data.success) {
+            if (typeof showAlert === 'function') showAlert(data.error || 'Không thể lưu bình luận.', 'error');
+            return;
+          }
+
+          resetDetailCommentMode();
+          await fetchDetailComments();
+          if (typeof showAlert === 'function') showAlert(mode === 'edit' ? 'Đã cập nhật bình luận.' : 'Đã gửi bình luận.', 'success');
+        } catch (error) {
+          if (typeof showAlert === 'function') showAlert('Có lỗi khi gửi bình luận.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Gửi bình luận';
+        }
+      });
+    }
+
+    fetchDetailComments();
+  </script>
+
+  {% include 'footer.html' %}
+</body>
+</html>

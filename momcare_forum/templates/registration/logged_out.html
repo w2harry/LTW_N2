@@ -1,0 +1,111 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% trans 'Đăng xuất thành công' %} | MomCare</title>
+  <style>
+    :root {
+      --bg: #fff4f8;
+      --card: #ffffff;
+      --text: #2f2a38;
+      --muted: #746b82;
+      --primary: #cb4c80;
+      --primary-hover: #b13d6c;
+      --line: #efcddd;
+      --shadow: 0 20px 50px rgba(122, 54, 88, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background: linear-gradient(155deg, #fff9fc 0%, var(--bg) 100%);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: #2f2538;
+    }
+
+    p {
+      margin: 10px 0 24px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 42px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid var(--line);
+      color: #4a4458;
+      background: #fff;
+    }
+
+    .btn:hover {
+      background: #fff7fb;
+      border-color: #e6b8cc;
+    }
+
+    .btn-primary {
+      border: none;
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="icon">✅</div>
+    <h1>{% trans "Đã đăng xuất" %}</h1>
+    <p>{% trans "Bạn đã đăng xuất khỏi trang quản trị thành công." %}</p>
+
+    <div class="btn-row">
+      <a class="btn" href="/">Về trang chủ</a>
+      <a class="btn btn-primary" href="/admin/login/">Đăng nhập lại</a>
+    </div>
+  </main>
+</body>
+</html>

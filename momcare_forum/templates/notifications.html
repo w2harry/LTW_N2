@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông báo - MomCare</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    body { background: #f9f9f9; margin: 0; }
+    main { min-height: calc(100vh - 200px); }
+    .notifications-container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+    .notifications-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .notifications-header h1 { font-size: 24px; margin: 0; color: #293041; font-weight: 700; }
+    .action-buttons { display: flex; gap: 10px; }
+    .btn-small { padding: 10px 18px; border: none; border-radius: 6px; background: #c9507f; color: white; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+    .btn-small:hover { background: #a63f67; transform: translateY(-1px); }
+    .btn-small:disabled { background: #ddd; cursor: not-allowed; transform: none; }
+    
+    .notification-filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn { padding: 10px 16px; border: 1px solid #ddd; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; text-decoration: none; color: #666; }
+    .filter-btn:hover { border-color: #c9507f; }
+    .filter-btn.active { background: #c9507f; color: white; border-color: #c9507f; }
+    .notification-list { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .notification-item { padding: 16px; border-bottom: 1px solid #f0f0f0; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; transition: all 0.2s; }
+    .notification-item:hover { background: #f9f9f9; }
+    .notification-item.unread { background: #f5f5f5; }
+    .notification-item:last-child { border-bottom: none; }
+    .checkbox-wrapper { flex-shrink: 0; padding-top: 4px; }
+    .checkbox-wrapper input { width: 18px; height: 18px; cursor: pointer; accent-color: #c9507f; }
+    .notification-content { flex: 1; min-width: 0; }
+    .notification-title { font-weight: 600; color: #293041; margin-bottom: 4px; font-size: 15px; }
+    .notification-message { color: #666; font-size: 13px; margin-bottom: 8px; line-height: 1.4; }
+    .notification-time { color: #999; font-size: 12px; }
+    .notification-actions { flex-shrink: 0; display: flex; gap: 8px; }
+    .btn-action { padding: 6px 12px; border: none; background: none; cursor: pointer; font-size: 12px; text-decoration: none; color: #c9507f; font-weight: 500; transition: all 0.2s; border-radius: 4px; }
+    .btn-action:hover { background: #f5f0f2; color: #a63f67; }
+    
+    .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; }
+    .empty-icon { font-size: 48px; margin-bottom: 20px; }
+    .empty-text { color: #999; font-size: 15px; }
+    
+    .bulk-actions { background: #f9f9f9; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; display: flex; gap: 10px; align-items: center; }
+    .bulk-actions-hidden { display: none; }
+    .bulk-actions span { font-size: 13px; color: #666; font-weight: 500; }
+    
+    .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    @media (max-width: 768px) {
+      .notifications-container { padding: 20px 16px; }
+      .notifications-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .notifications-header h1 { font-size: 20px; }
+      .notification-item { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+
+  {% include '_notification_popup.html' %}
+
+  <!-- Main Content -->
+  <main>
+    <div class="notifications-container">
+  <div class="notifications-header">
+    <h1>Thông báo</h1>
+    <div class="action-buttons">
+      {% if total_unread > 0 %}
+        <form method="POST" action="{% url 'mark_all_as_read' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-small">Đánh dấu tất cả đã đọc</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div id="alertContainer"></div>
+
+  <div class="notification-filters">
+    <a href="?filter=all" class="filter-btn {% if filter_type == 'all' %}active{% endif %}">Tất cả</a>
+    <a href="?filter=unread" class="filter-btn {% if filter_type == 'unread' %}active{% endif %}">Chưa đọc ({{ total_unread }})</a>
+  </div>
+
+  {% if notifications %}
+    <div class="notification-list">
+      <div id="bulkActions" class="bulk-actions bulk-actions-hidden">
+        <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+        <span id="selectedCount">0 thông báo được chọn</span>
+        <button class="btn-action" onclick="deleteSelected()" style="margin-left: auto; color: #ff6b6b;">Xóa</button>
+      </div>
+
+      <div id="notificationsList">
+        {% for notification in notifications %}
+          <div class="notification-item {% if not notification.is_read %}unread{% endif %}" data-notification-id="{{ notification.id }}">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" class="notification-checkbox" value="{{ notification.id }}" onchange="updateBulkActionUI()">
+            </div>
+            <a href="{% url 'notification_detail' notification.id %}" style="text-decoration: none; color: inherit; flex: 1;">
+              <div class="notification-content">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">{{ notification.created_at|date:"H:i, d/m/Y" }}</div>
+              </div>
+            </a>
+            <div class="notification-actions">
+              <a href="{% url 'notification_detail' notification.id %}" class="btn-action">Xem</a>
+              <button class="btn-action" onclick="deleteNotification({{ notification.id }}, event)">Xóa</button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if notifications.has_other_pages %}
+      <div style="text-align: center; padding: 20px; margin-top: 20px;">
+        {% if notifications.has_previous %}
+          <a href="?page=1&filter={{ filter_type }}" class="btn-small" style="margin: 0 5px; padding: 8px 14px;">Trang đầu</a>
+          <a href="?page={{ notifications.previous_page_number }}&filter={{ filter_type }}" class="btn-small" style="margin: 0 5px; padding: 8px 14px;">← Trước</a>
+        {% endif %}
+
+        <span style="margin: 0 10px; color: #666; font-weight: 500;">Trang {{ notifications.number }} / {{ notifications.paginator.num_pages }}</span>
+
+        {% if notifications.has_next %}
+          <a href="?page={{ notifications.next_page_number }}&filter={{ filter_type }}" class="btn-small" style="margin: 0 5px; padding: 8px 14px;">Sau →</a>
+          <a href="?page={{ notifications.paginator.num_pages }}&filter={{ filter_type }}" class="btn-small" style="margin: 0 5px; padding: 8px 14px;">Trang cuối</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔔</div>
+      <p class="empty-text">Bạn không có thông báo nào</p>
+    </div>
+  {% endif %}
+</div>
+  </main>
+
+  <!-- Footer -->
+  {% include 'footer.html' %}
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260419c"></script>
+  <script src="{% static 'js/auth.js' %}?v=20260502a"></script>
+  <script>
+    function toggleSelectAll(checkbox) {
+      document.querySelectorAll('.notification-checkbox').forEach(cb => {
+        cb.checked = checkbox.checked;
+      });
+      updateBulkActionUI();
+    }
+
+    function updateBulkActionUI() {
+      const checkboxes = document.querySelectorAll('.notification-checkbox');
+      const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+      const bulkActions = document.getElementById('bulkActions');
+      const selectedCountSpan = document.getElementById('selectedCount');
+      
+      if (selectedCount > 0) {
+        bulkActions.classList.remove('bulk-actions-hidden');
+        selectedCountSpan.textContent = `${selectedCount} thông báo được chọn`;
+      } else {
+        bulkActions.classList.add('bulk-actions-hidden');
+      }
+    }
+
+    async function deleteNotification(notificationId, event) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const confirmed = await showConfirm('Bạn có chắc chắn muốn xóa thông báo này?');
+      if (!confirmed) return;
+
+      fetch(`/api/notification/${notificationId}/delete/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+          if (item) {
+            item.remove();
+            showAlert(document.getElementById('alertContainer'), 'Xóa thông báo thành công!', 'success');
+          }
+        } else {
+          showAlert(document.getElementById('alertContainer'), data.error || 'Không thể xóa thông báo', 'error');
+        }
+      })
+      .catch(error => {
+        showAlert(document.getElementById('alertContainer'), 'Lỗi: ' + error.message, 'error');
+      });
+    }
+
+    async function deleteSelected() {
+      const checkboxes = document.querySelectorAll('.notification-checkbox:checked');
+      const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+      
+      if (ids.length === 0) {
+        showAlert(document.getElementById('alertContainer'), 'Vui lòng chọn ít nhất một thông báo', 'error');
+        return;
+      }
+      
+      const confirmed = await showConfirm(`Bạn có chắc chắn muốn xóa ${ids.length} thông báo này?`);
+      if (!confirmed) return;
+
+      fetch('/api/notifications/delete-multiple/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ ids })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          checkboxes.forEach(cb => {
+            const item = document.querySelector(`[data-notification-id="${cb.value}"]`);
+            if (item) item.remove();
+          });
+          updateBulkActionUI();
+          showAlert(document.getElementById('alertContainer'), data.message, 'success');
+        } else {
+          showAlert(document.getElementById('alertContainer'), data.error || 'Không thể xóa thông báo', 'error');
+        }
+      })
+      .catch(error => {
+        showAlert(document.getElementById('alertContainer'), 'Lỗi: ' + error.message, 'error');
+      });
+    }
+  </script>
+</body>
+</html>
+

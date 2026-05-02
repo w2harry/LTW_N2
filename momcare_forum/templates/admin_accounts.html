@@ -1,0 +1,486 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý tài khoản - MomCare{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý tài khoản</h1>
+      <p class="page-subtitle">Quản lý danh sách tài khoản người dùng trong hệ thống</p>
+    </div>
+    <button class="btn-primary" type="button" data-open-modal="account-form" data-mode="create">+ Thêm tài khoản</button>
+  </div>
+
+  <section class="summary-grid">
+    <article class="summary-card">
+      <div class="summary-head" style="background:#b25780;">Tổng tài khoản</div>
+      <div class="summary-body">
+        <span class="icon-soft" style="background:#f7dfe9; color:#b25780;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M17 11v6"/><path d="M20 14h-6"/><path d="M3 21c0-4 3-6 6-6s6 2 6 6"/></svg>
+        </span>
+        <div class="summary-value">{{ total_users|default:0 }}</div>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-head" style="background:#38685f;">Bác sĩ</div>
+      <div class="summary-body">
+        <span class="icon-soft" style="background:#d7efe4; color:#38685f;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+        </span>
+        <div class="summary-value">{{ doctors|default:0 }}</div>
+      </div>
+    </article>
+
+    <article class="summary-card">
+      <div class="summary-head" style="background:#98709a;">Người kiểm duyệt</div>
+      <div class="summary-body">
+        <span class="icon-soft" style="background:#ecdfef; color:#98709a;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>
+        </span>
+        <div class="summary-value">{{ admins|default:0 }}</div>
+      </div>
+    </article>
+  </section>
+
+  <section class="table-card">
+    <div class="table-title">Danh sách tài khoản</div>
+    <div class="table-wrap">
+      <input class="table-search" type="text" placeholder="Tìm kiếm theo mã, tên đăng nhập hoặc email...">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã tài khoản</th>
+              <th>Tên đăng nhập</th>
+              <th>Email</th>
+              <th>Vai trò</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr data-account-code="ACC{{ user.id|stringformat:'06d' }}" data-username="{{ user.username }}" data-email="{{ user.email }}" data-role="{% if user.is_staff %}admin{% elif user.profile.user_type == 'doctor' %}doctor{% else %}user{% endif %}" data-role-label="{% if user.is_staff %}Quản trị{% elif user.profile.user_type == 'doctor' %}Bác sĩ{% else %}Người dùng{% endif %}" data-status="{% if user.is_active %}active{% else %}locked{% endif %}">
+              <td>ACC{{ user.id|stringformat:'06d' }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                {% if user.is_staff %}
+                <span class="role-pill reviewer">Quản trị</span>
+                {% elif user.profile.user_type == 'doctor' %}
+                <span class="role-pill doctor">Bác sĩ</span>
+                {% else %}
+                <span class="role-pill user">Người dùng</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if user.is_active %}
+                <span class="status-pill active">Hoạt động</span>
+                {% else %}
+                <span class="status-pill locked">Bị khóa</span>
+                {% endif %}
+              </td>
+              <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+              <td>
+                <span class="inline-actions">
+                  <button class="btn-ghost" type="button" data-open-modal="account-form" data-mode="edit">✎</button>
+                  {% if user.is_active %}
+                  <button class="btn-warning-outline" type="button" data-open-modal="confirm-lock">🔒</button>
+                  {% else %}
+                  <button class="btn-success-outline" type="button" data-open-modal="confirm-unlock">🔓</button>
+                  {% endif %}
+                  <button class="btn-danger-outline" type="button" data-open-modal="confirm-delete">🗑</button>
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+            {% if not users %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 20px;">Không có tài khoản nào</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="admin-modal-backdrop" id="admin-modal-backdrop" hidden></div>
+
+  <section class="admin-modal admin-modal-form" data-modal="account-form" hidden>
+    <button type="button" class="admin-modal-close" data-close-modal aria-label="Đóng">×</button>
+    <div class="account-form-header">
+      <span class="account-form-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3.5"/><path d="M2.5 20a7 7 0 0 1 13 0"/><path d="M17.5 9v6"/><path d="M20.5 12h-6"/></svg>
+      </span>
+      <div>
+        <h2 class="admin-modal-title" id="account-form-title">Thêm tài khoản</h2>
+        <p class="admin-modal-code" id="account-form-code">UC-ACC-01</p>
+      </div>
+    </div>
+
+    <form class="account-form-grid" id="account-form">
+      <label class="admin-field">
+        <span>Tên đăng nhập <strong>*</strong></span>
+        <input id="account-username" type="text" placeholder="Nhập tên đăng nhập" required>
+      </label>
+
+      <label class="admin-field">
+        <span>Email <strong>*</strong></span>
+        <input id="account-email" type="email" placeholder="Nhập địa chỉ email" autocomplete="email" required>
+        <small style="display:block; margin-top:4px; color:#8a90a0; font-size:12px;">Email là bắt buộc, không được trùng và sẽ dùng để liên hệ tài khoản.</small>
+      </label>
+
+      <label class="admin-field">
+        <span>Mật khẩu <strong>*</strong></span>
+        <span class="password-field-wrap">
+          <input id="account-password" type="password" placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)" required>
+          <button class="password-toggle" type="button" data-toggle-password aria-label="Hiện mật khẩu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </span>
+      </label>
+
+      <label class="admin-field">
+        <span>Vai trò <strong>*</strong></span>
+        <select id="account-role" required>
+          <option value="user">Người dùng</option>
+          <option value="doctor">Bác sĩ</option>
+          <option value="admin">Quản trị viên</option>
+        </select>
+      </label>
+
+      <div class="admin-business-rules">
+        <h3>Quy tắc nghiệp vụ:</h3>
+        <ul>
+          <li>Tên đăng nhập và Email phải là duy nhất trong hệ thống</li>
+          <li>Mật khẩu phải có tối thiểu 8 ký tự</li>
+          <li>Tất cả các trường có dấu (*) là bắt buộc</li>
+        </ul>
+      </div>
+
+      <div class="admin-modal-actions admin-modal-actions-wide">
+        <button class="btn-filled-pink" type="submit">Lưu</button>
+        <button class="btn-outline-pink" type="button" data-close-modal>Hủy</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="admin-modal admin-modal-confirm" data-modal="confirm-unlock" hidden>
+    <h2 class="admin-modal-title">Xác nhận mở khóa tài khoản</h2>
+    <p class="admin-modal-message" id="unlock-message">Bạn có chắc chắn muốn mở khóa tài khoản này? Tài khoản sẽ có thể đăng nhập vào hệ thống.</p>
+    <div class="admin-modal-actions">
+      <button class="btn-neutral" type="button" data-close-modal>Quay lại</button>
+      <button class="btn-confirm-green" type="button" data-close-modal>Xác nhận</button>
+    </div>
+  </section>
+
+  <section class="admin-modal admin-modal-confirm" data-modal="confirm-lock" hidden>
+    <h2 class="admin-modal-title">Xác nhận khóa tài khoản</h2>
+    <p class="admin-modal-message" id="lock-message">Bạn có chắc chắn muốn khóa tài khoản này? Tài khoản bị khóa sẽ không thể đăng nhập hệ thống.</p>
+    <div class="admin-modal-actions">
+      <button class="btn-neutral" type="button" data-close-modal>Quay lại</button>
+      <button class="btn-confirm-orange" type="button" data-close-modal>Xác nhận</button>
+    </div>
+  </section>
+
+  <section class="admin-modal admin-modal-confirm" data-modal="confirm-delete" hidden>
+    <h2 class="admin-modal-title">Xác nhận xóa tài khoản</h2>
+    <p class="admin-modal-message" id="delete-message">Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể hoàn tác.</p>
+    <div class="admin-modal-actions">
+      <button class="btn-neutral" type="button" data-close-modal>Quay lại</button>
+      <button class="btn-confirm-red" type="button" data-close-modal>Xác nhận</button>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var backdrop = document.getElementById('admin-modal-backdrop');
+      var modalButtons = document.querySelectorAll('[data-open-modal]');
+      var closeButtons = document.querySelectorAll('[data-close-modal]');
+      var allModals = document.querySelectorAll('.admin-modal');
+      var formModal = document.querySelector('[data-modal="account-form"]');
+      var formTitle = document.getElementById('account-form-title');
+      var formCode = document.getElementById('account-form-code');
+      var usernameInput = document.getElementById('account-username');
+      var emailInput = document.getElementById('account-email');
+      var passwordInput = document.getElementById('account-password');
+      var roleInput = document.getElementById('account-role');
+      var lockMessage = document.getElementById('lock-message');
+      var unlockMessage = document.getElementById('unlock-message');
+      var deleteMessage = document.getElementById('delete-message');
+      var accountForm = document.getElementById('account-form');
+      var passwordToggle = document.querySelector('[data-toggle-password]');
+      
+      // Track current selected user and action
+      var currentUserId = null;
+      var currentAction = null;
+      var currentMode = 'create';  // 'create' or 'edit'
+
+      function closeAllModals() {
+        allModals.forEach(function (modal) {
+          modal.hidden = true;
+        });
+        backdrop.hidden = true;
+        document.body.classList.remove('admin-modal-open');
+      }
+
+      function fillMessages(accountName) {
+        lockMessage.textContent = 'Bạn có chắc chắn muốn khóa tài khoản ' + accountName + '? Tài khoản bị khóa sẽ không thể đăng nhập hệ thống.';
+        unlockMessage.textContent = 'Bạn có chắc chắn muốn mở khóa tài khoản ' + accountName + '? Tài khoản sẽ có thể đăng nhập vào hệ thống.';
+        deleteMessage.textContent = 'Bạn có chắc chắn muốn xóa tài khoản ' + accountName + '? Hành động này không thể hoàn tác.';
+      }
+
+      function hydrateActionIcons() {
+        var icons = {
+          edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
+          lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/></svg>',
+          unlock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 9.9-1"/></svg>',
+          del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>'
+        };
+
+        document.querySelectorAll('.inline-actions button').forEach(function (button) {
+          var modalType = button.getAttribute('data-open-modal');
+          var icon = icons.edit;
+          var label = 'Sửa tài khoản';
+
+          if (modalType === 'confirm-lock') {
+            icon = icons.lock;
+            label = 'Khóa tài khoản';
+          } else if (modalType === 'confirm-unlock') {
+            icon = icons.unlock;
+            label = 'Mở khóa tài khoản';
+          } else if (modalType === 'confirm-delete') {
+            icon = icons.del;
+            label = 'Xóa tài khoản';
+          }
+
+          button.innerHTML = icon;
+          button.setAttribute('aria-label', label);
+          button.setAttribute('title', label);
+        });
+      }
+
+      hydrateActionIcons();
+
+      modalButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          var modalName = button.getAttribute('data-open-modal');
+          var mode = button.getAttribute('data-mode');
+          var modal = document.querySelector('[data-modal="' + modalName + '"]');
+          var row = button.closest('tr');
+          var accountName = row ? row.getAttribute('data-username') : 'mới';
+
+          closeAllModals();
+
+          if (modalName === 'account-form') {
+            if (mode === 'edit' && row) {
+              currentMode = 'edit';
+              currentUserId = row.getAttribute('data-account-code').replace('ACC', '');
+              formTitle.textContent = 'Sửa tài khoản';
+              formCode.textContent = row.getAttribute('data-account-code');
+              usernameInput.value = row.getAttribute('data-username');
+              emailInput.value = row.getAttribute('data-email');
+              passwordInput.value = '';
+              roleInput.value = row.getAttribute('data-role') || 'user';
+              passwordInput.placeholder = 'Nhập mật khẩu mới (tối thiểu 8 ký tự)';
+              usernameInput.disabled = true;
+              emailInput.disabled = false;
+            } else {
+              currentMode = 'create';
+              currentUserId = null;
+              formTitle.textContent = 'Thêm tài khoản';
+              formCode.textContent = 'UC-ACC-AUTO';
+              accountForm.reset();
+              passwordInput.placeholder = 'Nhập mật khẩu (tối thiểu 8 ký tự)';
+              usernameInput.disabled = false;
+              emailInput.disabled = false;
+            }
+          } else {
+            fillMessages(accountName);
+            currentUserId = row ? row.getAttribute('data-account-code').replace('ACC', '') : null;
+            currentAction = modalName === 'confirm-lock' ? 'lock' : modalName === 'confirm-unlock' ? 'unlock' : 'delete';
+            
+            // Wire up confirmation buttons
+            var confirmBtn = modal.querySelector('.btn-confirm-' + (currentAction === 'delete' ? 'red' : currentAction === 'lock' ? 'orange' : 'green'));
+            if (confirmBtn) {
+              confirmBtn.onclick = function() {
+                if (currentAction === 'lock') lockUser(currentUserId);
+                else if (currentAction === 'unlock') unlockUser(currentUserId);
+                else if (currentAction === 'delete') deleteUser(currentUserId);
+              };
+            }
+          }
+
+          modal.hidden = false;
+          backdrop.hidden = false;
+          document.body.classList.add('admin-modal-open');
+        });
+      });
+
+      closeButtons.forEach(function (button) {
+        button.addEventListener('click', closeAllModals);
+      });
+
+      backdrop.addEventListener('click', closeAllModals);
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          closeAllModals();
+        }
+      });
+
+      if (passwordToggle) {
+        passwordToggle.addEventListener('click', function () {
+          passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        });
+      }
+
+      function lockUser(userId) {
+        fetch(`/api/admin/user/${userId}/lock/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+          }
+        }).then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showAlert('Tài khoản đã được khóa', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showAlert('Lỗi: ' + (data.error || 'Không thể khóa tài khoản'), 'error');
+            }
+            closeAllModals();
+          })
+          .catch(err => {
+            showAlert('Lỗi: ' + err, 'error');
+            closeAllModals();
+          });
+      }
+
+      function unlockUser(userId) {
+        fetch(`/api/admin/user/${userId}/unlock/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+          }
+        }).then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showAlert('Tài khoản đã được mở khóa', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showAlert('Lỗi: ' + (data.error || 'Không thể mở khóa tài khoản'), 'error');
+            }
+            closeAllModals();
+          })
+          .catch(err => {
+            showAlert('Lỗi: ' + err, 'error');
+            closeAllModals();
+          });
+      }
+
+      function deleteUser(userId) {
+        fetch(`/api/admin/user/${userId}/delete/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+          }
+        }).then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showAlert(data.message || 'Tài khoản đã được xóa thành công', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showAlert('Lỗi: ' + (data.error || 'Không thể xóa tài khoản'), 'error');
+            }
+            closeAllModals();
+          })
+          .catch(err => {
+            showAlert('Lỗi: ' + err, 'error');
+            closeAllModals();
+          });
+      }
+
+      accountForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        
+        var username = usernameInput.value.trim();
+        var email = emailInput.value.trim();
+        var password = passwordInput.value.trim();
+        var role = roleInput.value;
+        
+        if (!username || !email) {
+          showAlert('Tất cả các trường bắt buộc phải được điền', 'error');
+          return;
+        }
+        
+        if (currentMode === 'create' && !password) {
+          showAlert('Mật khẩu không được để trống', 'error');
+          return;
+        }
+        
+        if (password && password.length < 8) {
+          showAlert('Mật khẩu phải có ít nhất 8 ký tự', 'error');
+          return;
+        }
+        
+        if (currentMode === 'create') {
+          // Create new user
+          fetch('/api/admin/user/create/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: username,
+              email: email,
+              password: password,
+              user_type: role
+            })
+          }).then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => location.reload(), 1000);
+              } else {
+                showAlert('Lỗi: ' + (data.error || 'Không thể tạo tài khoản'), 'error');
+              }
+            })
+            .catch(err => showAlert('Lỗi: ' + err, 'error'))
+            .finally(() => closeAllModals());
+        } else {
+          // Update existing user
+          fetch(`/api/admin/user/${currentUserId}/edit/`, {
+            method: 'PUT',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: email,
+              user_type: role,
+              full_name: ''
+            })
+          }).then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => location.reload(), 1000);
+              } else {
+                showAlert('Lỗi: ' + (data.error || 'Không thể cập nhật tài khoản'), 'error');
+              }
+            })
+            .catch(err => showAlert('Lỗi: ' + err, 'error'))
+            .finally(() => closeAllModals());
+        }
+      });
+    })();
+  </script>
+{% endblock %}

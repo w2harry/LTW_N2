@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Không tìm thấy trang | MomCare</title>
+  <style>
+    :root {
+      --bg-1: #fff8f5;
+      --bg-2: #fff1eb;
+      --ink: #2b2f38;
+      --muted: #6f7785;
+      --accent: #c9507f;
+      --accent-2: #e8879f;
+      --card: rgba(255, 255, 255, 0.82);
+      --border: rgba(201, 80, 127, 0.16);
+      --shadow: 0 24px 80px rgba(133, 60, 88, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(232, 135, 159, 0.22), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(201, 80, 127, 0.14), transparent 32%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .hero {
+      position: relative;
+      padding: 40px 34px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .code {
+      margin: 18px 0 14px;
+      font-size: clamp(88px, 16vw, 160px);
+      line-height: 0.9;
+      font-weight: 800;
+      letter-spacing: -0.07em;
+      color: transparent;
+      background: linear-gradient(135deg, #2b2f38, #c9507f 52%, #e8879f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: 0 8px 28px rgba(201, 80, 127, 0.12);
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      max-width: 56ch;
+    }
+
+    .actions {
+      margin-top: 26px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 12px 24px rgba(201, 80, 127, 0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      border: 1px solid rgba(43, 47, 56, 0.08);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      backdrop-filter: blur(18px);
+    }
+
+    .panel-card {
+      border-radius: 22px;
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,248,245,0.96));
+      border: 1px solid rgba(201, 80, 127, 0.12);
+    }
+
+    .panel-title {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .panel-list {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel-list li {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(201, 80, 127, 0.08);
+      color: var(--muted);
+    }
+
+    .panel-list strong {
+      color: var(--ink);
+    }
+
+    .note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+
+      .hero, .panel {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" aria-labelledby="not-found-title">
+    <section class="hero">
+      <div class="kicker">MomCare • 404</div>
+      <div class="code">404</div>
+      <h1 id="not-found-title">Không tìm thấy trang bạn đang mở</h1>
+      <p>
+        Đường dẫn này không tồn tại, đã bị đổi, hoặc bạn nhập sai địa chỉ. Bạn có thể quay về trang chủ hoặc vào diễn đàn để tiếp tục.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/">Về trang chủ</a>
+        <a class="btn btn-secondary" href="/forum/">Vào diễn đàn</a>
+        <a class="btn btn-secondary" href="/admin-login/">Đăng nhập admin</a>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Gợi ý nhanh">
+      <div class="panel-card">
+        <h2 class="panel-title">Gợi ý nhanh</h2>
+        <ul class="panel-list">
+          <li><strong>Kiểm tra lại URL</strong> nếu bạn đang tự gõ đường dẫn.</li>
+          <li><strong>Dùng menu chính</strong> để đi tới trang đúng thay vì link cũ.</li>
+          <li><strong>Liên hệ quản trị</strong> nếu bạn chắc chắn đây là trang cần có.</li>
+        </ul>
+        <div class="note">Trang này được dùng cho cả link sai trên localhost và khi triển khai thật.</div>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>

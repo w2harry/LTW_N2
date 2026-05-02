@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MomCare Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+  <style>
+    .admin-icon-inline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .admin-icon-inline svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .user-dropdown {
+      position: relative;
+    }
+
+    .user-avatar-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9507f 0%, #e8879f 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(32, 17, 26, 0.2);
+      min-width: 200px;
+      z-index: 1000;
+      border: 1px solid #f0dce4;
+    }
+
+    .user-menu-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0dce4;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .user-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      color: #2f3544;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f0dce4;
+    }
+
+    .user-menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .user-menu-item:hover {
+      background: #f8eef3;
+      color: #c9507f;
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="{% url 'admin_dashboard' %}" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        MomCare
+      </a>
+
+      <nav class="nav-menu">
+        <a href="{% url 'landing' %}" class="nav-link">Trang chủ</a>
+        <a href="{% url 'forum' %}" class="nav-link">Diễn đàn</a>
+      </nav>
+
+      <div class="header-actions">
+        <div class="user-dropdown">
+          <button class="user-avatar-btn" type="button" aria-label="Tài khoản admin">
+            <div class="user-avatar">{{ user.username|first|upper }}</div>
+          </button>
+          <div class="user-menu" style="display: none;">
+            <div class="user-menu-header">
+              <div class="user-info">
+                <strong>{{ user.first_name|default:user.username }}</strong>
+                <span style="font-size: 12px; color: #626d80;">{{ user.email }}</span>
+              </div>
+            </div>
+            <a href="/admin-logout/" class="user-menu-item"><span data-admin-icon="logout" aria-hidden="true"></span><span>Đăng xuất</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260419c"></script>
+  <script>
+    window.adminIconMarkup = {
+      logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 3v18"/></svg>',
+      view: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+      hide: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.58 10.58A3 3 0 0 0 12 15a3 3 0 0 0 2.42-1.26"/><path d="M9.88 5.08A10.94 10.94 0 0 1 12 5c6.5 0 10 7 10 7a18.79 18.79 0 0 1-4.27 4.88"/><path d="M6.61 6.61C3.68 8.55 2 12 2 12s3.5 7 10 7c1.23 0 2.39-.2 3.47-.57"/></svg>',
+      show: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+      verify: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+      delete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+      lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/></svg>',
+      unlock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 9.9-1"/></svg>',
+      warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+      report: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+      download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10"/><path d="M8 10l4 4 4-4"/><path d="M5 21h14"/></svg>',
+      comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+      category: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/></svg>',
+      heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+      clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+      user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg>',
+      edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>'
+    };
+
+    window.decorateAdminIcons = function decorateAdminIcons(root) {
+      var scope = root || document;
+      scope.querySelectorAll('[data-admin-icon]').forEach(function (element) {
+        var name = element.getAttribute('data-admin-icon');
+        var markup = window.adminIconMarkup && window.adminIconMarkup[name];
+        if (markup) {
+          element.classList.add('admin-icon-inline');
+          element.innerHTML = markup;
+        }
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      window.decorateAdminIcons(document);
+    });
+
+    document.querySelectorAll('.user-avatar-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const menu = this.parentElement.querySelector('.user-menu');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+      });
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.user-dropdown')) {
+        document.querySelectorAll('.user-menu').forEach(menu => {
+          menu.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+{% load static %}
+{% extends 'admin_base.html' %}
+
+{% block title %}Nhật Ký Hoạt Động - MomCare Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .filter-group { background: white; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+  
+  .filter-item { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 200px; }
+  .filter-item label { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; }
+  .filter-item select,
+  .filter-item input { padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+  
+  .filter-btn { padding: 10px 20px; background: #c9507f; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; align-self: flex-end; }
+  .filter-btn:hover { background: #b0426a; }
+  
+  .export-section { display: flex; gap: 10px; margin-bottom: 20px; }
+  .export-btn { padding: 10px 16px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-weight: 600; color: #333; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+  .export-btn:hover { background: #f9f9f9; }
+  
+  .logs-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  
+  .logs-table thead { background: #f8f9fa; border-bottom: 2px solid #ddd; }
+  .logs-table th { padding: 15px 20px; text-align: left; font-weight: 600; color: #333; font-size: 13px; }
+  .logs-table td { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; }
+  .logs-table tbody tr:hover { background: #f9f9f9; }
+  
+  .admin-name { font-weight: 600; color: #333; }
+  .admin-name small { display: block; color: #999; font-weight: normal; font-size: 12px; }
+  
+  .action-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .action-ban { background: #f8d7da; color: #721c24; }
+  .action-unban { background: #d4edda; color: #155724; }
+  .action-delete { background: #f8d7da; color: #721c24; }
+  .action-post_hide { background: #fff3cd; color: #856404; }
+  .action-post_delete { background: #f8d7da; color: #721c24; }
+  .action-comment_hide { background: #fff3cd; color: #856404; }
+  .action-verify_post { background: #d4edda; color: #155724; }
+  .action-role_change { background: #cfe2ff; color: #084298; }
+  .action-settings_update { background: #e2e3e5; color: #383d41; }
+  
+  .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .status-success { background: #d4edda; color: #155724; }
+  .status-failed { background: #f8d7da; color: #721c24; }
+  
+  .target-info { font-size: 13px; color: #666; }
+  .target-info strong { color: #333; }
+  
+  .description { font-size: 13px; color: #555; line-height: 1.5; wrapping: break-word; }
+  
+  .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
+  .pagination a, .pagination span { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; text-decoration: none; color: #333; }
+  .pagination a:hover { background: #c9507f; color: white; border-color: #c9507f; }
+  .pagination a.active, .pagination span.active { background: #c9507f; color: white; border-color: #c9507f; }
+  
+  .no-logs { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; color: #999; }
+  
+  @media (max-width: 768px) {
+    .filter-group { flex-direction: column; }
+    .filter-item { min-width: 100%; }
+    .logs-table { font-size: 12px; }
+    .logs-table th, .logs-table td { padding: 10px; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 30px;">
+  <h1 style="font-size: 28px; margin-bottom: 10px; color: #333;">📊 Nhật Ký Hoạt Động</h1>
+  <p style="color: #999; margin-bottom: 30px;">Theo dõi tất cả các hành động quản lý</p>
+
+  <!-- Filters -->
+  <div class="filter-group">
+    <form method="get" style="display: flex; gap: 15px; width: 100%; flex-wrap: wrap;">
+      <div class="filter-item" style="flex: 1; min-width: 200px;">
+        <label>Loại Hành Động</label>
+        <select name="action_type">
+          <option value="">-- Tất Cả --</option>
+          <option value="user_delete" {% if filters.action_type == 'user_delete' %}selected{% endif %}>Xóa người dùng</option>
+          <option value="user_role_change" {% if filters.action_type == 'user_role_change' %}selected{% endif %}>Thay đổi vai trò</option>
+          <option value="post_hide" {% if filters.action_type == 'post_hide' %}selected{% endif %}>Ẩn bài viết</option>
+          <option value="post_unhide" {% if filters.action_type == 'post_unhide' %}selected{% endif %}>Hiển thị bài viết</option>
+          <option value="post_delete" {% if filters.action_type == 'post_delete' %}selected{% endif %}>Xóa bài viết</option>
+          <option value="post_verify" {% if filters.action_type == 'post_verify' %}selected{% endif %}>Verify bài viết</option>
+          <option value="comment_hide" {% if filters.action_type == 'comment_hide' %}selected{% endif %}>Ẩn bình luận</option>
+          <option value="settings_update" {% if filters.action_type == 'settings_update' %}selected{% endif %}>Cập nhật cài đặt</option>
+        </select>
+      </div>
+
+      <div class="filter-item" style="flex: 1; min-width: 200px;">
+        <label>Admin</label>
+        <select name="admin_id">
+          <option value="">-- Tất Cả --</option>
+          {% for admin in admins %}
+          <option value="{{ admin.id }}" {% if filters.admin_id == admin.id|stringformat:"s" %}selected{% endif %}>{{ admin.get_full_name|default:admin.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filter-item" style="flex: 1; min-width: 200px;">
+        <label>Từ Ngày</label>
+        <input type="date" name="date_from" value="{{ filters.date_from }}">
+      </div>
+
+      <div class="filter-item" style="flex: 1; min-width: 200px;">
+        <label>Đến Ngày</label>
+        <input type="date" name="date_to" value="{{ filters.date_to }}">
+      </div>
+
+      <button type="submit" class="filter-btn" style="min-width: 120px;">🔍 Lọc</button>
+    </form>
+  </div>
+
+  <!-- Export -->
+  <div class="export-section">
+    <button class="export-btn" onclick="exportCSV()"><span data-admin-icon="download" aria-hidden="true"></span><span>Xuất CSV</span></button>
+    <button class="export-btn" onclick="exportJSON()"><span data-admin-icon="download" aria-hidden="true"></span><span>Xuất JSON</span></button>
+  </div>
+
+  <!-- Table -->
+  {% if logs %}
+  <table class="logs-table">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Admin</th>
+        <th style="width: 15%;">Hành Động</th>
+        <th style="width: 35%;">Chi Tiết</th>
+        <th style="width: 15%;">Kết Quả</th>
+        <th style="width: 15%;">Thời Gian</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>
+          <div class="admin-name">
+            {{ log.admin.get_full_name|default:log.admin.username }}
+            <small>{{ log.admin.email }}</small>
+          </div>
+        </td>
+        
+        <td>
+          <span class="action-badge action-{{ log.action_type }}">
+            {% if log.action_type == 'user_delete' %}<span data-admin-icon="delete" aria-hidden="true"></span><span>Xóa</span>
+            {% elif log.action_type == 'user_role_change' %}<span data-admin-icon="user" aria-hidden="true"></span><span>Vai trò</span>
+            {% elif log.action_type == 'post_hide' %}<span data-admin-icon="hide" aria-hidden="true"></span><span>Ẩn</span>
+            {% elif log.action_type == 'post_unhide' %}<span data-admin-icon="show" aria-hidden="true"></span><span>Hiện</span>
+            {% elif log.action_type == 'post_delete' %}<span data-admin-icon="delete" aria-hidden="true"></span><span>Xóa</span>
+            {% elif log.action_type == 'post_verify' %}<span data-admin-icon="verify" aria-hidden="true"></span><span>Verify</span>
+            {% elif log.action_type == 'comment_hide' %}<span data-admin-icon="hide" aria-hidden="true"></span><span>Ẩn</span>
+            {% elif log.action_type == 'settings_update' %}<span data-admin-icon="edit" aria-hidden="true"></span><span>Cài đặt</span>
+            {% else %}{{ log.action_type }}
+            {% endif %}
+          </span>
+        </td>
+        
+        <td>
+          <div class="description">{{ log.action_description }}</div>
+          <div class="target-info" style="margin-top: 5px;">
+            {% if log.target_user %}
+              <strong>Người dùng:</strong> {{ log.target_user.get_full_name|default:log.target_user.username }}
+            {% endif %}
+            {% if log.target_post %}
+              <strong>Bài viết:</strong> #{{ log.target_post.id }} - {{ log.target_post.title|truncatewords:5 }}
+            {% endif %}
+            {% if log.target_comment %}
+              <strong>Bình luận:</strong> #{{ log.target_comment.id }}
+            {% endif %}
+          </div>
+          {% if log.error_message %}
+            <div style="margin-top: 5px; color: #dc3545; font-size: 12px;">❌ {{ log.error_message }}</div>
+          {% endif %}
+        </td>
+        
+        <td>
+          <span class="status-badge {% if log.status == 'success' %}status-success{% else %}status-failed{% endif %}">
+            {% if log.status == 'success' %}✓ Thành công{% else %}✗ Thất bại{% endif %}
+          </span>
+        </td>
+        
+        <td style="font-size: 13px; color: #666;">
+          {{ log.created_at|date:"H:i, d/m/Y" }}
+          <br>
+          <small style="color: #999;">{{ log.created_at|timesince }} trước</small>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?page=1&action_type={{ filters.action_type }}&admin_id={{ filters.admin_id }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">« Đầu</a>
+      <a href="?page={{ page_obj.previous_page_number }}&action_type={{ filters.action_type }}&admin_id={{ filters.admin_id }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">‹ Trước</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <span class="active">{{ num }}</span>
+      {% else %}
+        <a href="?page={{ num }}&action_type={{ filters.action_type }}&admin_id={{ filters.admin_id }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&action_type={{ filters.action_type }}&admin_id={{ filters.admin_id }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">Tiếp ›</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}&action_type={{ filters.action_type }}&admin_id={{ filters.admin_id }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">Cuối »</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="no-logs">
+    📭 Không có nhật ký nào
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  function exportData(format) {
+    const table = document.querySelector('.logs-table');
+    if (!table) {
+      showAlert('Không có dữ liệu để xuất', 'error');
+      return;
+    }
+
+    if (format === 'csv') {
+      let csv = [];
+      const rows = table.querySelectorAll('tr');
+      
+      rows.forEach(row => {
+        let cells = [];
+        row.querySelectorAll('th, td').forEach(cell => {
+          cells.push('"' + cell.textContent.replace(/"/g, '""') + '"');
+        });
+        csv.push(cells.join(','));
+      });
+
+      downloadFile(csv.join('\n'), 'activity-logs.csv', 'text/csv');
+    } else if (format === 'json') {
+      const logs = [];
+      const rows = table.querySelectorAll('tbody tr');
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        logs.push({
+          admin: cells[0].textContent.trim(),
+          action: cells[1].textContent.trim(),
+          details: cells[2].textContent.trim(),
+          status: cells[3].textContent.trim(),
+          timestamp: cells[4].textContent.trim()
+        });
+      });
+
+      downloadFile(JSON.stringify(logs, null, 2), 'activity-logs.json', 'application/json');
+    }
+  }
+
+  function downloadFile(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  function exportCSV() {
+    exportData('csv');
+  }
+
+  function exportJSON() {
+    exportData('json');
+  }
+</script>
+
+{% endblock %}

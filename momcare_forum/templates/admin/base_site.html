@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}MomCare Quản trị hệ thống{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/system_admin.css' %}?v=20260402d">
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    document.documentElement.setAttribute('data-theme', 'light');
+    try {
+      localStorage.setItem('theme', 'light');
+    } catch (e) {
+      // Ignore storage issues and keep default light mode.
+    }
+  </script>
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name"><a href="{% url 'admin:index' %}">MomCare Quản trị hệ thống</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

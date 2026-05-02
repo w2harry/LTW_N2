@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MomCare - Diễn đàn chăm sóc mẹ bầu</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    .topics-showcase {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      margin: 24px auto 0;
+      max-width: 1240px;
+      padding: 34px 26px 28px;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 52%),
+        linear-gradient(135deg, #fff4f8 0%, #ffeef5 45%, #f3f8ff 100%);
+      border: 1px solid #f0d7e3;
+      box-shadow: 0 18px 44px rgba(199, 126, 157, 0.16);
+    }
+
+    .topics-showcase::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -60px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(218, 95, 149, 0.24), rgba(218, 95, 149, 0));
+      pointer-events: none;
+    }
+
+    .topics-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #b34774;
+      background: #fff;
+      border: 1px solid #f0cfe0;
+      border-radius: 999px;
+      padding: 6px 12px;
+      margin-bottom: 10px;
+    }
+
+    .topics-showcase .section-title {
+      margin-bottom: 8px;
+    }
+
+    .topics-showcase .section-subtitle {
+      max-width: 760px;
+      margin: 0 auto 20px;
+      color: #6f6a75;
+    }
+
+    .topics-showcase .topic-card {
+      border-radius: 16px;
+      border: 1px solid #efd8e5;
+      box-shadow: 0 8px 24px rgba(48, 37, 45, 0.08);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .topics-showcase .topic-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 30px rgba(48, 37, 45, 0.14);
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+  {% include '_notification_popup.html' %}
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">Hành trình làm mẹ an toàn và hạnh phúc</h1>
+        <p class="hero-subtitle">
+          Kết nối với cộng đồng Mầm mày, chia sẻ kinh nghiệm và tìm hiểu tư vấn từ các bác sĩ chuyên nghiệp khóa học hàng đầu
+        </p>
+        <a href="{% url 'forum' %}" class="btn-cta" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+          Khám phá giá trị
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+        
+        <div class="stats-inline" style="display: flex; gap: 40px; margin-top: 40px; background: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: fit-content;">
+          <div class="stat-item" style="text-align: center;">
+            <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--primary-pink);">{{ total_users }}+</div>
+            <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gray);">Thành viên</div>
+          </div>
+          <div class="stat-item" style="text-align: center;">
+            <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--primary-pink);">{{ total_doctors }}+</div>
+            <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gray);">Bác sĩ</div>
+          </div>
+          <div class="stat-item" style="text-align: center;">
+            <div class="stat-number" style="font-size: 2rem; font-weight: 700; color: var(--primary-pink);">{{ total_posts }}+</div>
+            <div class="stat-label" style="font-size: 0.95rem; color: var(--text-gray);">Bài viết</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="{% static 'image/image1.png' %}" alt="MomCare">
+      </div>
+    </div>
+  </section>
+
+  <!-- Topics Grid -->
+  <section class="topics-section topics-showcase">
+    <h2 class="section-title">Khám phá chủ đề</h2>
+    <p class="section-subtitle">Tìm hiểu và tham gia thảo luận về các chủ đề quan trọng trong hành trình làm mẹ</p>
+    <div class="topics-grid">
+      {% for topic in topics %}
+      <a href="{% url 'forum' %}?category={{ topic.id }}" class="topic-card" style="text-decoration:none; color:inherit; display:block;">
+        <div class="topic-icon {% cycle 'pink' 'teal' 'pink' 'teal' 'pink' 'pink' %}">
+          {% if forloop.counter == 1 %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          {% elif forloop.counter == 2 %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          {% elif forloop.counter == 3 %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+          {% elif forloop.counter == 4 %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          {% elif forloop.counter == 5 %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          {% else %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          {% endif %}
+        </div>
+        <h3 class="topic-title">{{ topic.name }}</h3>
+        <p class="topic-description">{{ topic.description|default:'Tìm hiểu và trao đổi kinh nghiệm cùng cộng đồng MomCare'|truncatewords:12 }}</p>
+        <div class="topic-footer">
+          <span class="topic-count">{{ topic.post_count }} bài viết</span>
+          <span class="topic-link {% cycle '' 'teal-link' '' 'teal-link' '' '' %}">Xem thêm <span>→</span></span>
+        </div>
+      </a>
+      {% empty %}
+      <p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-gray);">Chưa có chủ đề nào</p>
+      {% endfor %}
+    </div>
+  </section>
+
+
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/auth.js' %}?v=20260502a"></script>
+
+  {% include 'footer.html' %}
+</body>
+</html>
+

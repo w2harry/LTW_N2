@@ -1,0 +1,95 @@
+<!-- Reusable Post Card Component -->
+<article class="feed-card" data-post-id="{{ post.id }}">
+  <div class="feed-head">
+    <div class="feed-user">
+      <div class="avatar-mini {{ post.category.color_dot|default:'pink' }}">
+        {{ post.author.first_name|default:post.author.username|slice:":1"|upper }}
+      </div>
+      <div>
+        <div class="feed-user-name-row">
+          <div class="feed-user-name">{{ post.author.first_name|default:post.author.username }}</div>
+          {% if post.verified_by_expert %}
+          <button type="button" class="verify-trigger verified" 
+                  aria-label="Bài viết đã được kiểm duyệt" 
+                  data-post-id="{{ post.id }}"
+              >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </button>
+          {% endif %}
+        </div>
+        <div class="feed-time">{{ post.created_at|timesince }} trước · Công khai{% if post.category %} · {{ post.category.name }}{% endif %}</div>
+        {% if post.verified_by_expert %}
+        <div class="review-approved show" data-post-id="{{ post.id }}" role="button" tabindex="0" aria-label="Xem chi tiết kiểm duyệt bài viết">
+          <span class="review-approved-icon">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </span>
+          <span style="font-size: 12px;">
+            Đã được kiểm duyệt bởi chuyên gia
+          </span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="post-menu-wrap">
+      <button class="post-menu-btn" type="button" aria-label="Tùy chọn bài viết">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <circle cx="12" cy="5" r="2"></circle>
+          <circle cx="12" cy="12" r="2"></circle>
+          <circle cx="12" cy="19" r="2"></circle>
+        </svg>
+      </button>
+      <div class="post-menu">
+        {% if user.is_authenticated and user == post.author %}
+        <!-- Edit via popup modal only -->
+        <form method="POST" action="{% url 'delete_post' post.id %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" style="width: 100%; border: none; background: transparent; text-align: left; padding: 9px 10px; font-size: 13px; color: #d32f2f; cursor: pointer; border-top: 1px solid #edf1f6;">Xóa bài viết</button>
+        </form>
+        {% elif user.is_authenticated %}
+        <button type="button" class="report-post-btn" style="width: 100%; border: none; background: transparent; text-align: left; padding: 9px 10px; font-size: 13px; color: #d32f2f; cursor: pointer;">Báo cáo bài viết</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="feed-content">
+    <h3 style="margin: 0 0 8px; font-size: 16px; color: #1f2430;">{{ post.title }}</h3>
+    {{ post.content }}
+  </div>
+
+  {% if post.image %}
+  <img src="{{ post.display_image_url }}" alt="Bài viết" class="feed-image">
+  {% endif %}
+
+  <div class="feed-stats">
+    <span>{{ post.likes.count }} lượt thích</span>
+    <span class="comments-count">{{ post.comments.count }} bình luận</span>
+  </div>
+
+  <div class="feed-actions">
+    <button class="feed-action like-post-btn {% if user.is_authenticated and user in post.likes.all %}liked{% endif %}" type="button" data-post-id="{{ post.id }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+      </svg>
+      <span class="like-label">Thích</span>
+    </button>
+    <button class="feed-action open-comment-modal-btn" type="button" data-post-id="{{ post.id }}" style="background: none; border: none; cursor: pointer; text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+      <span class="comment-label">Bình luận</span>
+    </button>
+    <button class="feed-action share-post-btn" type="button" data-share-url="{% url 'post_detail' post.id %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+        <polyline points="16 6 12 2 8 6" />
+        <line x1="12" y1="2" x2="12" y2="15" />
+      </svg>
+      <span class="share-label">Chia sẻ</span>
+    </button>
+  </div>
+</article>

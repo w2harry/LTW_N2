@@ -1,0 +1,259 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý danh mục - MomCare{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản lý danh mục</h1>
+    </div>
+    <button class="btn-primary" type="button" data-open-category-modal="category-form" data-mode="create">+ Thêm danh mục</button>
+  </div>
+
+  <section class="duo-metric-grid">
+    <article class="duo-metric-card">
+      <div class="metric-label">Tổng danh mục</div>
+      <div class="number">{{ total_categories }}</div>
+    </article>
+    <article class="duo-metric-card">
+      <div class="metric-label">Tổng bài viết</div>
+      <div class="number">{{ total_posts }}</div>
+    </article>
+  </section>
+
+  <section class="category-grid">
+    {% for category in categories %}
+    <article class="category-card" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}" data-category-description="{{ category.description }}" data-post-count="{{ category.post_count }}">
+      <h3>{{ category.name }}</h3>
+      <p>{{ category.description }}</p>
+      <div class="category-meta">{{ category.post_count }} bài viết</div>
+      <div class="row-actions"><button class="btn-ghost" type="button" data-open-category-modal="category-form" data-mode="edit">Sửa</button><button class="btn-danger-outline" type="button" data-open-category-modal="delete-category" {% if category.post_count > 0 %}disabled data-delete-blocked="1" title="Không thể xóa danh mục đang có bài viết"{% endif %}>Xóa</button></div>
+    </article>
+    {% endfor %}
+    {% if not categories %}
+    <article class="empty-state">
+      <p>Chưa có danh mục nào</p>
+    </article>
+    {% endif %}
+  </section>
+
+  <div class="category-modal-backdrop" id="category-modal-backdrop" hidden></div>
+
+  <section class="category-modal" data-category-modal="category-form" hidden>
+    <div class="category-modal-head">
+      <h2 class="category-modal-title" id="category-modal-title">Thêm danh mục</h2>
+      <button type="button" class="category-modal-close" data-close-category-modal aria-label="Đóng">×</button>
+    </div>
+
+    <form class="category-form" id="category-form">
+      <label class="category-field">
+        <span>Tên danh mục<strong>*</strong></span>
+        <input id="category-name-input" type="text" placeholder="Nhập tên danh mục" required>
+      </label>
+
+      <label class="category-field">
+        <span>Mô tả</span>
+        <textarea id="category-desc-input" placeholder="Nhập mô tả danh mục"></textarea>
+      </label>
+
+      <div class="category-info-soft" id="category-create-note">Mã danh mục sẽ được tạo tự động</div>
+      <div class="category-info-warn" id="category-edit-note" hidden>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>
+        <span id="category-edit-note-text">Lưu ý: Danh mục này đang có 0 bài viết.</span>
+      </div>
+
+      <div class="category-modal-actions">
+        <button type="button" class="category-btn category-btn-cancel" data-close-category-modal>Hủy</button>
+        <button type="submit" class="category-btn category-btn-save">Lưu</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="category-confirm-modal" data-category-modal="delete-category" hidden>
+    <div class="category-confirm-icon">?</div>
+    <h3>Bạn có chắc chắn muốn xóa?</h3>
+    <div class="category-confirm-actions">
+      <button type="button" class="category-confirm-btn category-confirm-btn-primary" data-close-category-modal>Xác nhận</button>
+      <button type="button" class="category-confirm-btn category-confirm-btn-ghost" data-close-category-modal>Hủy</button>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var backdrop = document.getElementById('category-modal-backdrop');
+      var openButtons = document.querySelectorAll('[data-open-category-modal]');
+      var closeButtons = document.querySelectorAll('[data-close-category-modal]');
+      var modals = document.querySelectorAll('[data-category-modal]');
+      var form = document.getElementById('category-form');
+      var title = document.getElementById('category-modal-title');
+      var nameInput = document.getElementById('category-name-input');
+      var descInput = document.getElementById('category-desc-input');
+      var createNote = document.getElementById('category-create-note');
+      var editNote = document.getElementById('category-edit-note');
+      var editNoteText = document.getElementById('category-edit-note-text');
+      var currentCategoryId = null;
+      var currentMode = 'create';
+
+      function categoryNameExists(name, excludeCategoryId) {
+        var normalizedName = (name || '').trim().toLowerCase();
+        if (!normalizedName) {
+          return false;
+        }
+
+        var cards = document.querySelectorAll('.category-card');
+        for (var i = 0; i < cards.length; i += 1) {
+          var card = cards[i];
+          var cardCategoryId = card.getAttribute('data-category-id');
+          var cardName = (card.getAttribute('data-category-name') || '').trim().toLowerCase();
+          if (excludeCategoryId && String(cardCategoryId) === String(excludeCategoryId)) {
+            continue;
+          }
+          if (cardName && cardName === normalizedName) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function closeAllCategoryModals() {
+        modals.forEach(function (modal) {
+          modal.hidden = true;
+        });
+        backdrop.hidden = true;
+        document.body.classList.remove('admin-modal-open');
+      }
+
+      openButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          var target = button.getAttribute('data-open-category-modal');
+          var mode = button.getAttribute('data-mode');
+          var modal = document.querySelector('[data-category-modal="' + target + '"]');
+          var card = button.closest('.category-card');
+
+          closeAllCategoryModals();
+
+          if (target === 'category-form') {
+            if (mode === 'edit' && card) {
+              currentMode = 'edit';
+              currentCategoryId = card.getAttribute('data-category-id');
+              title.textContent = 'Chỉnh sửa danh mục';
+              nameInput.value = card.getAttribute('data-category-name') || '';
+              descInput.value = card.getAttribute('data-category-description') || '';
+              createNote.hidden = true;
+              editNote.hidden = false;
+              editNoteText.textContent = 'Lưu ý: Danh mục này đang có ' + (card.getAttribute('data-post-count') || '0') + ' bài viết.';
+            } else {
+              currentMode = 'create';
+              currentCategoryId = null;
+              title.textContent = 'Thêm danh mục';
+              form.reset();
+              createNote.hidden = false;
+              editNote.hidden = true;
+            }
+          } else if (target === 'delete-category' && card) {
+            currentCategoryId = card.getAttribute('data-category-id');
+            if ((parseInt(card.getAttribute('data-post-count') || '0', 10) || 0) > 0) {
+              showAlert('Không thể xóa danh mục đang có bài viết.', 'error');
+              closeAllCategoryModals();
+              return;
+            }
+            var deleteBtn = document.querySelector('[data-category-modal="delete-category"] .category-confirm-btn-primary');
+            deleteBtn.onclick = function() { deleteCategory(currentCategoryId); };
+          }
+
+          if (modal) {
+            modal.hidden = false;
+            backdrop.hidden = false;
+            document.body.classList.add('admin-modal-open');
+          }
+        });
+      });
+
+      closeButtons.forEach(function (button) {
+        button.addEventListener('click', closeAllCategoryModals);
+      });
+
+      backdrop.addEventListener('click', closeAllCategoryModals);
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          closeAllCategoryModals();
+        }
+      });
+
+      function deleteCategory(categoryId) {
+        fetch(`/api/admin/category/${categoryId}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+          }
+        }).then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              showAlert('Danh mục đã được xóa', 'success');
+              setTimeout(() => {
+                location.reload();
+              }, 1000);
+            } else {
+              showAlert(data.error || 'Không thể xóa danh mục', 'error');
+            }
+            closeAllCategoryModals();
+          })
+          .catch(err => {
+            showAlert('Lỗi: ' + err, 'error');
+            closeAllCategoryModals();
+          });
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        
+        var name = nameInput.value.trim();
+        var description = descInput.value.trim();
+        
+        if (!name) {
+          showAlert('Tên danh mục không được để trống', 'error');
+          return;
+        }
+
+        if (categoryNameExists(name, currentMode === 'edit' ? currentCategoryId : null)) {
+          showAlert('Tên danh mục đã tồn tại, vui lòng nhập tên khác.', 'error');
+          return;
+        }
+        
+        var endpoint = currentMode === 'create' ? '/api/admin/category/' : `/api/admin/category/${currentCategoryId}/`;
+        var method = currentMode === 'create' ? 'POST' : 'PUT';
+        
+        fetch(endpoint, {
+          method: method,
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            description: description
+          })
+        }).then(r => r.json())
+          .then(data => {
+            if (data.success) {
+              var message = currentMode === 'create' ? 'Danh mục đã được tạo' : 'Danh mục đã được cập nhật';
+              showAlert(message, 'success');
+              setTimeout(() => {
+                location.reload();
+              }, 1000);
+            } else {
+              showAlert(data.error || 'Không thể lưu danh mục', 'error');
+            }
+          })
+          .catch(err => {
+            showAlert('Lỗi: ' + err, 'error');
+          })
+          .finally(() => {
+            closeAllCategoryModals();
+          });
+      });
+    })();
+  </script>
+{% endblock %}

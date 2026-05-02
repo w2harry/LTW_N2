@@ -1,0 +1,1500 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ target_user.get_full_name|default:target_user.username }} - MomCare</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #f9f9f9; color: #222a38; }
+    main { min-height: calc(100vh - 200px); }
+    
+    .profile-container { max-width: 760px; margin: 0 auto; padding: 20px; }
+    
+    .profile-header {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .profile-cover {
+      height: 180px;
+      background: linear-gradient(135deg, #c9507f, #e8a5c2);
+    }
+    
+    .profile-info {
+      padding: 0 20px 20px;
+      position: relative;
+    }
+    
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9507f, #d66a95);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 700;
+      margin-top: -50px;
+      margin-bottom: 12px;
+      border: 4px solid white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2430;
+      margin-bottom: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-name-edit {
+      font-size: 14px;
+      color: #c9507f;
+      text-decoration: none;
+      line-height: 1;
+    }
+
+    .verify-trigger {
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 50%;
+      background: #f4d2df;
+      color: #c9507f;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .verify-trigger:hover:not(:disabled) {
+      background: #efbfd2;
+      transform: scale(1.1);
+    }
+
+    .verify-trigger:disabled {
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .verify-trigger svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .verify-trigger.verified {
+      background: #f5d8e4;
+      color: #b83a6f;
+      cursor: default;
+    }
+
+    .review-approved {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      color: #b83a6f;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .review-approved.show {
+      display: inline-flex;
+    }
+
+    .review-approved-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f5d8e4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #b83a6f;
+      flex-shrink: 0;
+    }
+    
+    .profile-username {
+      font-size: 13px;
+      color: #7a8192;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .profile-doctor-title {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #f0cddd;
+      background: #fff3f8;
+      color: #a84775;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .profile-stats {
+      display: flex;
+      gap: 24px;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    
+    .profile-stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .profile-stat-value {
+      font-weight: 700;
+      color: #1f2430;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    
+    .profile-stat-label {
+      color: #7a8192;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    
+    .profile-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .btn-profile {
+      padding: 10px 18px;
+      border: 1px solid #c9507f;
+      background: #c9507f;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .btn-profile:hover {
+      background: #a63f67;
+      border-color: #a63f67;
+    }
+    
+    /* Composer */
+    .composer {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .composer-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .composer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9507f, #d66a95);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    
+    .composer-input {
+      flex: 1;
+      background: #f5f5f5;
+      border: 1px solid #e8e8e8;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .composer-input:hover {
+      background: #efefef;
+    }
+    
+    /* Posts */
+    .posts-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .post-card-wrapper {
+      display: contents;
+    }
+    
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s;
+    }
+    
+    .post-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .post-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      justify-content: space-between;
+    }
+    
+    .post-user {
+      display: flex;
+      gap: 12px;
+      flex: 1;
+    }
+    
+    .post-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c9507f, #d66a95);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    
+    .post-avatar svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .post-user-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .post-username {
+      font-weight: 600;
+      color: #1f2430;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    
+    .post-time {
+      font-size: 12px;
+      color: #7a8192;
+      margin-top: 2px;
+    }
+    
+    .post-options {
+      position: relative;
+    }
+    
+    .post-options-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #7a8192;
+      font-size: 18px;
+      padding: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      border-radius: 50%;
+    }
+    
+    .post-options-btn:hover {
+      background: #f5f5f5;
+      color: #1f2430;
+    }
+    
+    .post-options-menu {
+      display: none;
+      position: absolute;
+      top: 32px;
+      right: -8px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      min-width: 150px;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    
+    .post-options-menu.show {
+      display: flex;
+    }
+    
+    .post-options-item {
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      color: #1f2430;
+      font-size: 13px;
+      transition: all 0.2s;
+      width: 100%;
+      text-decoration: none;
+      display: block;
+    }
+    
+    .post-options-item:hover {
+      background: #f5f5f5;
+      color: #c9507f;
+    }
+    
+    .post-options-item.danger:hover {
+      background: #fff5f5;
+      color: #d04763;
+    }
+    
+    .post-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2430;
+      margin-bottom: 8px;
+      cursor: pointer;
+      line-height: 1.4;
+      max-height: calc(1.4em * 2);
+      overflow: hidden;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    
+    .post-title:hover {
+      color: #c9507f;
+    }
+    
+    .post-content {
+      font-size: 14px;
+      color: #2b3242;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      cursor: pointer;
+      overflow: hidden;
+      max-height: calc(1.6em * 6);
+    }
+    
+    .post-content:hover {
+      color: #1f2430;
+    }
+    
+    .post-image {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: block;
+      cursor: pointer;
+    }
+
+    .post-images-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .post-images-grid.single {
+      grid-template-columns: 1fr;
+    }
+    
+    .post-stats {
+      display: flex;
+      gap: 20px;
+      padding: 12px 0;
+      border-top: 1px solid #f1e6ec;
+      border-bottom: 1px solid #f1e6ec;
+      font-size: 13px;
+      color: #7a8192;
+      margin-bottom: 12px;
+    }
+    
+    .post-stats span {
+      display: block;
+    }
+    
+    .post-actions {
+      display: flex;
+      gap: 24px;
+    }
+    
+    .post-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #7a8192;
+      font-size: 13px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+    
+    .post-action:hover {
+      color: #c9507f;
+    }
+    
+    .post-action.liked {
+      color: #d04763;
+    }
+    
+    .post-action svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+    
+    .post-action.liked svg {
+      fill: #d04763;
+      stroke: none;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .empty-text {
+      color: #7a8192;
+      font-size: 15px;
+    }
+
+    .post-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 28, 34, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 16px;
+    }
+
+    .post-modal {
+      width: 100%;
+      max-width: 760px;
+      max-height: 92vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 12px 36px rgba(16, 18, 26, 0.22);
+      border: 1px solid #ead6dd;
+      padding: 14px 16px 16px;
+    }
+
+    .post-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .post-modal-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2430;
+    }
+
+    .post-modal-close {
+      border: none;
+      background: transparent;
+      color: #6f7787;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .edit-mode {
+      margin-bottom: 10px;
+    }
+
+    .edit-mode-label,
+    .field-label {
+      display: block;
+      font-size: 14px;
+      color: #2f3544;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .mode-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      border: 1px solid #dcdee7;
+      border-radius: 10px;
+      height: 42px;
+      background: #fff;
+      color: #71798a;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mode-btn.active {
+      border-color: #ce80a5;
+      background: #f1cfe2;
+      color: #a84775;
+    }
+
+    .mode-note {
+      background: #f0e8ee;
+      color: #7d6674;
+      border-radius: 8px;
+      font-size: 13px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+    }
+
+    .field-block {
+      margin-bottom: 10px;
+    }
+
+    .field-control,
+    .field-area,
+    .field-select {
+      width: 100%;
+      border: 1px solid #e2d3db;
+      border-radius: 10px;
+      background: #f6eef3;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #33394a;
+      font-family: inherit;
+    }
+
+    .field-area {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-modal {
+      min-width: 120px;
+      height: 42px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #d6dbe6;
+      background: #fff;
+      color: #2e3444;
+    }
+
+    .btn-modal-primary {
+      border-color: #b3567d;
+      background: #b3567d;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body data-user-authenticated="{% if user.is_authenticated %}1{% else %}0{% endif %}">
+  {% include '_navbar.html' %}
+  {% include '_notification_popup.html' %}
+
+  <main>
+    <div class="profile-container">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-cover"></div>
+        <div class="profile-info">
+          <div class="profile-avatar">{{ target_user.first_name|default:target_user.username|slice:":1"|upper }}</div>
+          <h1 class="profile-name">
+            {{ target_user.get_full_name|default:target_user.username }}
+          </h1>
+          <span class="profile-username">@{{ target_user.username }}</span>
+          {% if user_profile.user_type == 'doctor' %}
+          <!-- <div class="profile-doctor-title">
+            {{ doctor_title_clean|default:'Bác sĩ chuyên môn' }}
+          </div> -->
+          {% endif %}
+          
+          <div class="profile-stats">
+            <div class="profile-stat-item">
+              <div class="profile-stat-value">{{ post_count }}</div>
+              <div class="profile-stat-label">Bài viết</div>
+            </div>
+            <div class="profile-stat-item">
+              <div class="profile-stat-value">{{ total_likes }}</div>
+              <div class="profile-stat-label">Lượt thích</div>
+            </div>
+            <div class="profile-stat-item">
+              <div class="profile-stat-value">{{ total_comments }}</div>
+              <div class="profile-stat-label">Bình luận</div>
+            </div>
+            <div class="profile-stat-item">
+              <div class="profile-stat-value">{{ verified_posts }}</div>
+              <div class="profile-stat-label">Xác thực</div>
+            </div>
+          </div>
+          
+          {% if user.is_authenticated and user == target_user %}
+          <div class="profile-actions">
+            <a href="{% url 'profile_info' %}" class="btn-profile">Hồ sơ cá nhân</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Composer -->
+      {% if user.is_authenticated and user == target_user %}
+      <div class="composer">
+        <div class="composer-wrapper">
+          <div class="composer-avatar">{{ user.first_name|default:user.username|slice:":1"|upper }}</div>
+          <input
+            type="text"
+            class="composer-input"
+            placeholder="Bạn đang nghĩ gì thế?"
+            onclick="document.getElementById('create-post-modal').style.display='flex';"
+          />
+        </div>
+      </div>
+      {% endif %}
+      
+      <!-- Posts Feed -->
+      <div style="background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); padding:12px 14px; margin-bottom:12px;">
+        <form method="get" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <input type="date" name="date_from" value="{{ date_from }}" style="height:36px; border:1px solid #e1e5ee; border-radius:8px; padding:0 8px;">
+          <input type="date" name="date_to" value="{{ date_to }}" style="height:36px; border:1px solid #e1e5ee; border-radius:8px; padding:0 8px;">
+          <button type="submit" class="btn-profile" style="height:36px; padding:0 14px;">Lọc bài viết</button>
+          <a href="{% if target_user == user %}{% url 'profile' %}{% else %}{% url 'profile_view' target_user.username %}{% endif %}" style="font-size:13px; color:#7a8192; text-decoration:none;">Đặt lại</a>
+        </form>
+      </div>
+
+      <div class="posts-feed">
+        {% if posts %}
+          {% for post in posts %}
+          <div class="post-card-wrapper" data-post-id="{{ post.id }}" data-post-title="{{ post.title }}" data-post-owner="{% if user.is_authenticated and user == post.author %}true{% else %}false{% endif %}" data-privacy="{{ post.privacy }}">
+            <article class="post-card">
+              <!-- Post Header -->
+              <div class="post-header">
+                <div class="post-user">
+                  <div class="post-avatar">
+                    {% if post.privacy == 'anonymous' %}
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    {% else %}
+                    {{ post.author.first_name|default:post.author.username|slice:":1"|upper }}
+                    {% endif %}
+                  </div>
+                  <div class="post-user-info">
+                    <div class="post-username" style="display:flex; align-items:center;">
+                      {% if post.privacy == 'anonymous' %}
+                      Người dùng ẩn danh
+                      {% else %}
+                      {{ post.author.get_full_name|default:post.author.username }}
+                      {% endif %}
+                      {% if post.verified_by_expert %}
+                      <button type="button" class="verify-trigger verified" 
+                              data-post-id="{{ post.id }}"
+                              aria-label="Bài viết đã được kiểm duyệt">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      </button>
+                      {% elif can_verify_posts %}
+                      <button type="button" class="verify-trigger" data-post-id="{{ post.id }}" data-review-target="review-status-{{ post.id }}" aria-label="Bấm để kiểm định" title="Kiểm định bài viết">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                      </button>
+                      {% endif %}
+                    </div>
+                    <div class="post-time">{{ post.created_at|timesince }} trước</div>
+                    {% if post.verified_by_expert %}
+                    <div class="review-approved show" data-post-id="{{ post.id }}" role="button" tabindex="0" aria-label="Xem chi tiết kiểm duyệt bài viết">
+                      <span class="review-approved-icon">
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      </span>
+                      <span style="font-size: 12px;">Đã được kiểm duyệt bởi chuyên gia</span>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% if user.is_authenticated and user == post.author %}
+                <div class="post-options">
+                  <button class="post-options-btn" type="button">⋮</button>
+                  <div class="post-options-menu">
+                    <button type="button" class="post-options-item open-edit-post-modal-btn" data-post-id="{{ post.id }}">✏️ Sửa bài viết</button>
+                    <form method="POST" action="{% url 'delete_post' post.id %}" style="margin: 0;" data-confirm-message="Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                      <button type="submit" class="post-options-item danger">🗑️ Xóa bài viết</button>
+                    </form>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              
+              <!-- Post Title -->
+              <h3 class="post-title" onclick="openPostDetailModal({{ post.id }}); event.stopPropagation();">{{ post.title }}</h3>
+              
+              <!-- Post Content -->
+              <p class="post-content" onclick="openPostDetailModal({{ post.id }}); event.stopPropagation();">{{ post.content }}</p>
+              
+              <!-- Post Image -->
+              {% if post.images.all %}
+              <div class="post-images-grid {% if post.images.all|length == 1 %}single{% endif %}" onclick="openPostDetailModal({{ post.id }}); event.stopPropagation();">
+                {% for img in post.images.all %}
+                <img src="{{ img.display_image_url }}" alt="{{ img.alt_text|default:post.title }}" class="post-image" />
+                {% endfor %}
+              </div>
+              {% elif post.image %}
+              <img
+                src="{{ post.display_image_url }}"
+                alt="Bài viết"
+                class="post-image"
+                onclick="openPostDetailModal({{ post.id }}); event.stopPropagation();"
+              />
+              {% endif %}
+              
+              <!-- Post Stats -->
+              <div class="post-stats">
+                <span class="post-likes-count">{{ post.likes.count }} lượt thích</span>
+                <span class="post-comments-count">{{ post.comments.count }} bình luận</span>
+              </div>
+              
+              <!-- Post Actions -->
+              <div class="post-actions">
+                <button class="post-action like-post-btn {% if user.is_authenticated and user in post.likes.all %}liked{% endif %}" type="button" data-post-id="{{ post.id }}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span>Thích</span>
+                </button>
+                <button class="post-action open-comment-modal-btn" type="button" data-post-id="{{ post.id }}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>Bình luận</span>
+                </button>
+                <button class="post-action share-post-btn" type="button" data-share-url="{% url 'post_detail' post.id %}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                    <polyline points="16 6 12 2 8 6"/>
+                    <line x1="12" y1="2" x2="12" y2="15"/>
+                  </svg>
+                  <span>Chia sẻ</span>
+                </button>
+              </div>
+            </article>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <p class="empty-text">
+            {% if user.is_authenticated and user == target_user %}
+            Bạn chưa có bài viết nào. Hãy tạo bài viết đầu tiên!
+            {% else %}
+            Người dùng này chưa có bài viết nào.
+            {% endif %}
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+  {% include '_post_detail_modal.html' %}
+
+  <div class="post-modal-overlay" id="create-post-modal">
+    <div class="post-modal" onclick="event.stopPropagation()">
+      <div class="post-modal-head">
+        <h2 class="post-modal-title">Thêm bài viết</h2>
+        <button class="post-modal-close" id="close-create-post-modal" type="button">×</button>
+      </div>
+
+      <div class="edit-mode">
+        <label class="edit-mode-label">Chế độ hiển thị</label>
+        <div class="mode-group">
+          <button type="button" class="mode-btn" id="create-mode-public">Công khai</button>
+          <button type="button" class="mode-btn active" id="create-mode-anonymous">Ẩn danh</button>
+        </div>
+        <div
+          class="mode-note"
+          id="create-mode-note"
+          data-note-public="{% if user.is_authenticated %}Bạn đang đăng bài viết với {{ user.get_full_name|default:user.username }}{% else %}Bạn đang đăng bài viết với tài khoản của bạn{% endif %}"
+          data-note-anonymous="Tên và ảnh đại diện của bạn sẽ được thay thế bằng &quot;Người dùng ẩn danh&quot;"
+        >Tên và ảnh đại diện của bạn sẽ được thay thế bằng "Người dùng ẩn danh"</div>
+      </div>
+
+      <form id="create-post-form" method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="field-block">
+          <label class="field-label" for="create-category">Danh mục / Chủ đề <span style="color:#df4f75;">*</span></label>
+          <select id="create-category" class="field-select" name="category" required>
+            {% for cat in categories %}
+            {% if 'nhi khoa' not in cat.name|lower %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="create-title">Tiêu đề bài viết <span style="color:#df4f75;">*</span></label>
+          <input id="create-title" class="field-control" type="text" name="title" placeholder="Nhập tiêu đề bài viết" required>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="create-content">Nội dung bài viết <span style="color:#df4f75;">*</span></label>
+          <textarea id="create-content" class="field-area" name="content" placeholder="Nhập nội dung bài viết" required></textarea>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="create-image">Hình ảnh mô tả</label>
+          <input id="create-image" class="field-control" type="file" name="images" accept="image/*" multiple>
+          <div id="create-image-preview" class="post-images-grid single" style="margin-top: 8px; display: none;"></div>
+          <input type="hidden" name="image_url" id="create-image-url" value="">
+        </div>
+
+        <input type="hidden" id="create-privacy" name="privacy" value="anonymous">
+
+        <div class="edit-actions">
+          <button type="button" class="btn-modal" id="cancel-create-post">Hủy</button>
+          <button type="submit" class="btn-modal btn-modal-primary">Đăng bài viết</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="post-modal-overlay" id="edit-post-modal">
+    <div class="post-modal" onclick="event.stopPropagation()">
+      <div class="post-modal-head">
+        <h2 class="post-modal-title">Chỉnh sửa bài viết</h2>
+        <button class="post-modal-close" id="close-edit-post-modal" type="button">×</button>
+      </div>
+
+      <div class="edit-mode">
+        <label class="edit-mode-label">Chế độ hiển thị</label>
+        <div class="mode-group">
+          <button type="button" class="mode-btn" id="edit-mode-public">Công khai</button>
+          <button type="button" class="mode-btn" id="edit-mode-anonymous">Ẩn danh</button>
+        </div>
+        <div class="mode-note">Tên và ảnh đại diện của bạn sẽ được thay thế bằng "Người dùng ẩn danh"</div>
+      </div>
+
+      <form id="edit-post-form">
+        {% csrf_token %}
+        <input type="hidden" id="edit-post-id" name="post_id">
+        <input type="hidden" id="edit-privacy" name="privacy" value="public">
+
+        <div class="field-block">
+          <label class="field-label" for="edit-title">Tiêu đề bài viết <span style="color:#df4f75;">*</span></label>
+          <input id="edit-title" class="field-control" type="text" name="title" placeholder="Nhập tiêu đề bài viết" required>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="edit-content">Nội dung bài viết <span style="color:#df4f75;">*</span></label>
+          <textarea id="edit-content" class="field-area" name="content" placeholder="Nhập nội dung bài viết" required></textarea>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="edit-image">Hình ảnh mô tả</label>
+          <input id="edit-image" class="field-control" type="file" name="images" accept="image/*" multiple>
+          <div id="edit-image-preview" style="margin-top: 8px;">
+            <img id="edit-image-preview-img" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 6px; display: none;">
+          </div>
+        </div>
+
+        <div class="edit-actions">
+          <button type="button" class="btn-modal" id="cancel-edit-post">Hủy</button>
+          <button type="submit" class="btn-modal btn-modal-primary">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260419c"></script>
+  <script src="{% static 'js/auth.js' %}?v=20260502a"></script>
+{% include "_verify_modals.html" %}
+  <script>
+    // Post menu toggle
+    document.querySelectorAll('.post-card .post-options-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const menu = btn.nextElementSibling;
+        document.querySelectorAll('.post-options-menu.show').forEach(m => m !== menu && m.classList.remove('show'));
+        menu.classList.toggle('show');
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.post-options')) {
+        document.querySelectorAll('.post-options-menu.show').forEach(m => m.classList.remove('show'));
+      }
+    });
+
+    // Create post modal handlers
+    const createPostModal = document.getElementById('create-post-modal');
+    const createPostForm = document.getElementById('create-post-form');
+    const closeCreatePostModalBtn = document.getElementById('close-create-post-modal');
+    const cancelCreatePostBtn = document.getElementById('cancel-create-post');
+    const createModePublic = document.getElementById('create-mode-public');
+    const createModeAnonymous = document.getElementById('create-mode-anonymous');
+    const createModeNote = document.getElementById('create-mode-note');
+    const createPrivacyInput = document.getElementById('create-privacy');
+    const createImageInput = document.getElementById('create-image');
+    const createImagePreview = document.getElementById('create-image-preview');
+    let createImagePreviewUrls = [];
+    
+    function closeCreatePostModal() {
+      if (createPostModal) {
+        createPostModal.style.display = 'none';
+      }
+    }
+
+    function isCreatePostDirty() {
+      if (!createPostForm) return false;
+      const title = createPostForm.querySelector('#post-title')?.value?.trim() || '';
+      const content = createPostForm.querySelector('#post-content')?.value?.trim() || '';
+      const hasImages = (createPostForm.querySelector('#post-images')?.files?.length || 0) > 0;
+      const privacy = createPostForm.querySelector('#create-privacy')?.value || 'public';
+      return Boolean(title || content || hasImages || privacy !== 'public');
+    }
+
+    async function confirmCancelCreatePost() {
+      if (!isCreatePostDirty()) return true;
+      return showConfirm('Bạn có chắc muốn hủy thao tác tạo bài viết không? Nội dung chưa lưu sẽ bị mất.');
+    }
+    
+    function setCreateMode(mode) {
+      const isPublic = mode === 'public';
+      if (createModePublic) createModePublic.classList.toggle('active', isPublic);
+      if (createModeAnonymous) createModeAnonymous.classList.toggle('active', !isPublic);
+      if (createPrivacyInput) createPrivacyInput.value = isPublic ? 'public' : 'anonymous';
+      if (createModeNote) {
+        createModeNote.textContent = isPublic
+          ? (createModeNote.dataset.notePublic || '')
+          : (createModeNote.dataset.noteAnonymous || '');
+      }
+    }
+
+    function renderCreateImagePreview(fileList) {
+      if (!createImagePreview) return;
+
+      createImagePreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+      createImagePreviewUrls = [];
+
+      const files = Array.from(fileList || []).filter((file) => file.type.startsWith('image/'));
+      if (!files.length) {
+        createImagePreview.innerHTML = '';
+        createImagePreview.style.display = 'none';
+        return;
+      }
+
+      createImagePreview.classList.toggle('single', files.length === 1);
+      createImagePreview.innerHTML = files.map((file) => {
+        const url = URL.createObjectURL(file);
+        createImagePreviewUrls.push(url);
+        return `<img src="${url}" alt="Xem trước ảnh mô tả" class="post-image">`;
+      }).join('');
+      createImagePreview.style.display = 'grid';
+    }
+    
+    if (closeCreatePostModalBtn) {
+      closeCreatePostModalBtn.addEventListener('click', () => {
+        confirmCancelCreatePost().then((confirmed) => {
+          if (!confirmed) return;
+          closeCreatePostModal();
+        });
+      });
+    }
+    if (cancelCreatePostBtn) {
+      cancelCreatePostBtn.addEventListener('click', () => {
+        confirmCancelCreatePost().then((confirmed) => {
+          if (!confirmed) return;
+          closeCreatePostModal();
+        });
+      });
+    }
+    if (createPostModal) {
+      createPostModal.addEventListener('click', (e) => {
+        if (e.target === createPostModal) {
+          confirmCancelCreatePost().then((confirmed) => {
+            if (!confirmed) return;
+            closeCreatePostModal();
+          });
+        }
+      });
+    }
+    if (createModePublic) {
+      createModePublic.addEventListener('click', () => setCreateMode('public'));
+    }
+    if (createModeAnonymous) {
+      createModeAnonymous.addEventListener('click', () => setCreateMode('anonymous'));
+    }
+    createImageInput?.addEventListener('change', (event) => {
+      renderCreateImagePreview(event.target.files);
+    });
+
+    // Like functionality
+    document.querySelectorAll('.post-card .like-post-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const postId = btn.dataset.postId;
+        const res = await fetch(`/api/post/${postId}/like/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await res.json();
+        if (res.status === 401) {
+          showAlert('⚠️ ' + (data.error || 'Vui lòng đăng nhập để thích bài viết'), 'error');
+          if (typeof openModal === 'function') {
+            openModal('auth-modal');
+          }
+          return;
+        }
+        if (data.success) {
+          const isLiked = data.liked === true;
+          btn.classList.toggle('liked', isLiked);
+
+          // Keep feed and popup like state in sync for the same post.
+          document.querySelectorAll(`.like-post-btn[data-post-id="${postId}"]`).forEach(likeBtn => {
+            likeBtn.classList.toggle('liked', isLiked);
+          });
+
+          const postCard = btn.closest('.post-card');
+          const likesCount = postCard.querySelector('.post-likes-count');
+          likesCount.textContent = data.total_likes + ' lượt thích';
+
+          const modalLikes = document.getElementById('modal-post-likes');
+          if (modalLikes && document.getElementById('post-detail-modal')?.style.display === 'flex') {
+            modalLikes.textContent = data.total_likes + ' lượt thích';
+          }
+        }
+      });
+    });
+
+    // Like from popup modal
+    document.querySelectorAll('.modal-card-post-detail .like-post-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const postId = btn.dataset.postId;
+        if (!postId) return;
+
+        const res = await fetch(`/api/post/${postId}/like/`, {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await res.json();
+
+        if (res.status === 401) {
+          showAlert('⚠️ ' + (data.error || 'Vui lòng đăng nhập để thích bài viết'), 'error');
+          if (typeof openModal === 'function') {
+            openModal('auth-modal');
+          }
+          return;
+        }
+
+        if (data.success) {
+          const isLiked = data.liked === true;
+
+          document.querySelectorAll(`.like-post-btn[data-post-id="${postId}"]`).forEach(likeBtn => {
+            likeBtn.classList.toggle('liked', isLiked);
+          });
+
+          const postCard = document.querySelector(`.post-card-wrapper[data-post-id="${postId}"] .post-card`);
+          if (postCard) {
+            const likesCount = postCard.querySelector('.post-likes-count');
+            if (likesCount) {
+              likesCount.textContent = data.total_likes + ' lượt thích';
+            }
+          }
+
+          const modalLikes = document.getElementById('modal-post-likes');
+          if (modalLikes) {
+            modalLikes.textContent = data.total_likes + ' lượt thích';
+          }
+        }
+      });
+    });
+
+    // Comment modal
+    document.querySelectorAll('.post-card .open-comment-modal-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isAuthenticated = document.body?.dataset?.userAuthenticated === '1';
+        if (!isAuthenticated) {
+          showAlert('Vui lòng đăng nhập để bình luận.', 'error');
+          if (typeof openModal === 'function') {
+            openModal('auth-modal');
+          }
+          return;
+        }
+        openPostDetailModal(btn.dataset.postId);
+      });
+    });
+
+    // Share functionality
+    document.querySelectorAll('.post-card .share-post-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const url = window.location.origin + btn.dataset.shareUrl;
+        if (navigator.share) {
+          try {
+            await navigator.share({ url });
+            return;
+          } catch (err) {}
+        }
+        await navigator.clipboard.writeText(url);
+        showAlert('Đã sao chép liên kết!', 'success');
+      });
+    });
+
+    // Share from popup modal
+    document.querySelectorAll('.modal-card-post-detail .share-post-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const url = window.location.origin + btn.dataset.shareUrl;
+        if (navigator.share) {
+          try {
+            await navigator.share({ url });
+            return;
+          } catch (err) {}
+        }
+        await navigator.clipboard.writeText(url);
+        showAlert('Đã sao chép liên kết!', 'success');
+      });
+    });
+
+{% include "_verify_modals_js.html" %}
+
+    // Edit post from popup modal
+    const editPostModal = document.getElementById('edit-post-modal');
+    const editPostForm = document.getElementById('edit-post-form');
+    const closeEditPostModalBtn = document.getElementById('close-edit-post-modal');
+    const cancelEditPostBtn = document.getElementById('cancel-edit-post');
+    const editModePublic = document.getElementById('edit-mode-public');
+    const editModeAnonymous = document.getElementById('edit-mode-anonymous');
+    const editPrivacyInput = document.getElementById('edit-privacy');
+
+    function openEditPostModal(postId) {
+      const postCard = document.querySelector(`.post-card-wrapper[data-post-id="${postId}"]`);
+      if (!postCard) return;
+
+      document.getElementById('edit-post-id').value = postId;
+      document.getElementById('edit-title').value = postCard.dataset.postTitle || '';
+      document.getElementById('edit-content').value = postCard.querySelector('.post-content')?.textContent || '';
+
+      const privacy = postCard.dataset.privacy || 'public';
+      editPrivacyInput.value = privacy;
+      editModePublic.classList.toggle('active', privacy === 'public');
+      editModeAnonymous.classList.toggle('active', privacy === 'anonymous');
+
+      const currentImage = postCard.querySelector('.post-image');
+      const previewImg = document.getElementById('edit-image-preview-img');
+      if (currentImage && currentImage.src) {
+        previewImg.src = currentImage.src;
+        previewImg.style.display = 'block';
+      } else {
+        previewImg.style.display = 'none';
+      }
+
+      closePostDetailModal();
+      editPostModal.style.display = 'flex';
+      if (editPostForm) {
+        editPostForm.dataset.initialTitle = document.getElementById('edit-title').value;
+        editPostForm.dataset.initialContent = document.getElementById('edit-content').value;
+        editPostForm.dataset.initialPrivacy = document.getElementById('edit-privacy').value;
+      }
+    }
+
+    function hasEditPostUnsavedChanges() {
+      if (!editPostForm) return false;
+      const title = document.getElementById('edit-title')?.value || '';
+      const content = document.getElementById('edit-content')?.value || '';
+      const privacy = document.getElementById('edit-privacy')?.value || 'public';
+      const hasNewImage = (document.getElementById('edit-image')?.files?.length || 0) > 0;
+
+      return (
+        title !== (editPostForm.dataset.initialTitle || '') ||
+        content !== (editPostForm.dataset.initialContent || '') ||
+        privacy !== (editPostForm.dataset.initialPrivacy || 'public') ||
+        hasNewImage
+      );
+    }
+
+    async function confirmCancelEditPost() {
+      if (!hasEditPostUnsavedChanges()) return true;
+      return showConfirm('Bạn có chắc muốn hủy thao tác chỉnh sửa bài viết không? Thay đổi chưa lưu sẽ bị mất.');
+    }
+
+    window.openProfileEditPostFromDetail = function() {
+      const btn = document.getElementById('modal-edit-post-btn');
+      const postId = btn?.dataset?.postId;
+      if (!postId) return;
+      openEditPostModal(postId);
+    };
+
+    const modalEditBtn = document.getElementById('modal-edit-post-btn');
+    if (modalEditBtn) {
+      modalEditBtn.addEventListener('click', () => {
+        const postId = modalEditBtn.dataset.postId;
+        if (!postId) return;
+        openEditPostModal(postId);
+      });
+    }
+
+    document.querySelectorAll('.open-edit-post-modal-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.post-options-menu.show').forEach(m => m.classList.remove('show'));
+        const postId = btn.dataset.postId;
+        if (!postId) return;
+        openEditPostModal(postId);
+      });
+    });
+
+    if (editModePublic && editModeAnonymous && editPrivacyInput) {
+      editModePublic.addEventListener('click', () => {
+        editModePublic.classList.add('active');
+        editModeAnonymous.classList.remove('active');
+        editPrivacyInput.value = 'public';
+      });
+
+      editModeAnonymous.addEventListener('click', () => {
+        editModeAnonymous.classList.add('active');
+        editModePublic.classList.remove('active');
+        editPrivacyInput.value = 'anonymous';
+      });
+    }
+
+    closeEditPostModalBtn?.addEventListener('click', () => {
+      confirmCancelEditPost().then((confirmed) => {
+        if (!confirmed) return;
+        editPostModal.style.display = 'none';
+      });
+    });
+
+    cancelEditPostBtn?.addEventListener('click', () => {
+      confirmCancelEditPost().then((confirmed) => {
+        if (!confirmed) return;
+        editPostModal.style.display = 'none';
+      });
+    });
+
+    editPostModal?.addEventListener('click', (event) => {
+      if (event.target === editPostModal) {
+        confirmCancelEditPost().then((confirmed) => {
+          if (!confirmed) return;
+          editPostModal.style.display = 'none';
+        });
+      }
+    });
+
+    document.getElementById('edit-image')?.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const previewImg = document.getElementById('edit-image-preview-img');
+      if (!previewImg) return;
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previewImg.src = e.target.result;
+          previewImg.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewImg.style.display = 'none';
+      }
+    });
+
+    editPostForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const postId = document.getElementById('edit-post-id').value;
+      const title = document.getElementById('edit-title').value.trim();
+      const content = document.getElementById('edit-content').value.trim();
+      const privacy = document.getElementById('edit-privacy').value;
+      const imageInput = document.getElementById('edit-image');
+
+      if (!title || !content) {
+        showAlert('Vui lòng nhập đầy đủ tiêu đề và nội dung bài viết.', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('privacy', privacy);
+      Array.from(imageInput.files).forEach((file) => {
+        formData.append('images', file);
+      });
+      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+      const response = await fetch(`/post/${postId}/edit/`, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        showAlert('Lỗi: ' + (data.error || 'Không thể cập nhật bài viết.'), 'error');
+        return;
+      }
+
+      const postCardWrapper = document.querySelector(`.post-card-wrapper[data-post-id="${postId}"]`);
+      const postCard = postCardWrapper?.querySelector('.post-card');
+      if (postCardWrapper && postCard) {
+        postCardWrapper.dataset.postTitle = title;
+        postCardWrapper.dataset.privacy = privacy;
+        const titleEl = postCard.querySelector('.post-title');
+        const contentEl = postCard.querySelector('.post-content');
+        if (titleEl) titleEl.textContent = title;
+        if (contentEl) contentEl.textContent = content;
+
+        if (imageInput.files.length > 0) {
+          const previewUrls = await Promise.all(
+            Array.from(imageInput.files).map(file => new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target.result);
+              reader.readAsDataURL(file);
+            }))
+          );
+
+          const oldGrid = postCard.querySelector('.post-images-grid');
+          const oldImg = postCard.querySelector('.post-image');
+          if (oldGrid) oldGrid.remove();
+          if (oldImg) oldImg.remove();
+
+          const grid = document.createElement('div');
+          grid.className = `post-images-grid ${previewUrls.length === 1 ? 'single' : ''}`;
+          grid.setAttribute('onclick', `openPostDetailModal(${postId}); event.stopPropagation();`);
+          grid.innerHTML = previewUrls.map((src) => `<img src="${src}" alt="Bài viết" class="post-image">`).join('');
+          const statsEl = postCard.querySelector('.post-stats');
+          postCard.insertBefore(grid, statsEl);
+        }
+      }
+
+      showAlert('Bài viết đã được cập nhật thành công!', 'success');
+      editPostModal.style.display = 'none';
+      openPostDetailModal(postId);
+    });
+
+    // Delete post from popup modal
+    const modalDeleteBtn = document.getElementById('modal-delete-post-btn');
+    if (modalDeleteBtn) {
+      modalDeleteBtn.addEventListener('click', async () => {
+        const postId = modalDeleteBtn.dataset.postId;
+        if (!postId) return;
+
+        const confirmed = await showConfirm('Bạn có chắc muốn xóa bài viết này? Hành động này không thể hoàn tác.');
+        if (!confirmed) {
+          return;
+        }
+
+        const res = await fetch(`/post/${postId}/delete/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          showAlert('❌ ' + (data.error || 'Không thể xóa bài viết'), 'error');
+          return;
+        }
+
+        showAlert('Đã xóa bài viết', 'success');
+        closePostDetailModal();
+
+        const wrapper = document.querySelector(`.post-card-wrapper[data-post-id="${postId}"]`);
+        if (wrapper) {
+          wrapper.remove();
+        }
+      });
+    }
+
+    // Modal close - properly handle overlay click
+    const postDetailModal = document.getElementById('post-detail-modal');
+    if (postDetailModal) {
+      postDetailModal.addEventListener('click', function(e) {
+        // Only close if clicking outside the modal card (on the overlay)
+        if (e.target === this || e.target.classList.contains('modal-overlay-post-detail')) {
+          this.style.display = 'none';
+        }
+      });
+    }
+
+    // Also allow close button click
+    const closeBtn = document.querySelector('.modal-close-post-detail');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        closePostDetailModal();
+      });
+    }
+  </script>
+</body>
+
+</html>

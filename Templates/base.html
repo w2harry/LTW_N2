@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MomCare - Diễn đàn chăm sóc mẹ bầu{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% block content %}{% endblock %}
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="modal-content">
+        {% include 'forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260408a"></script>
+  <script src="{% static 'js/auth.js' %}?v=20260408a"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
+

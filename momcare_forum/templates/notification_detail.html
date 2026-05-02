@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ notification.title }} - MomCare</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20260407a">
+  <style>
+    body { background: #f9f9f9; margin: 0; }
+    main { min-height: calc(100vh - 200px); }
+    .container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+    .notification-card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .notification-header { border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 20px; }
+    .notification-header h1 { margin: 0; font-size: 22px; color: #293041; font-weight: 700; }
+    .notification-header p { margin: 5px 0 0; color: #999; font-size: 13px; font-weight: 500; }
+    .notification-body { color: #666; line-height: 1.6; margin-bottom: 20px; font-size: 15px; }
+    
+    .notification-actions { display: flex; gap: 10px; margin-top: 20px; border-top: 1px solid #f0f0f0; padding-top: 20px; flex-wrap: wrap; }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; text-decoration: none; display: inline-block; transition: all 0.2s; }
+    .btn-delete { background: #ff6b6b; color: white; }
+    .btn-delete:hover { background: #e85555; transform: translateY(-1px); }
+    .btn-back { background: #f0f0f0; color: #333; }
+    .btn-back:hover { background: #e0e0e0; }
+    
+    .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; text-decoration: none; color: #c9507f; font-weight: 500; transition: all 0.2s; }
+    .back-link:hover { color: #a63f67; }
+
+    .related-post { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #c9507f; }
+    .related-post h3 { margin: 0 0 10px; font-size: 15px; color: #293041; }
+    .related-post p { margin: 0 0 10px; color: #666; font-size: 14px; }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px 16px; }
+      .notification-card { padding: 20px; }
+      .notification-header h1 { font-size: 18px; }
+      .notification-actions { flex-direction: column; }
+      .notification-actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  {% include '_navbar.html' %}
+
+  {% include '_notification_popup.html' %}
+
+  <!-- Main Content -->
+  <main>
+
+<div class="container">
+  <a href="{% url 'notifications' %}" class="back-link">← Quay lại thông báo</a>
+
+  <div class="notification-card">
+    <div class="notification-header">
+      <div>
+        <h1 id="notification-title">{{ notification.title }}</h1>
+        <p>{{ notification.created_at|date:"d/m/Y H:i" }}</p>
+      </div>
+    </div>
+
+    <div class="notification-body" id="notification-message">
+      {{ notification.message }}
+    </div>
+
+    {% if notification.post %}
+      <div class="related-post">
+        <h3>Bài viết liên quan:</h3>
+        <p>
+          <strong>{{ notification.post.title }}</strong>
+        </p>
+        <a href="{% url 'post_detail' notification.post.id %}" class="btn" style="padding: 8px 16px; font-size: 13px; background: #c9507f; color: white; text-decoration: none; border-radius: 6px; display: inline-block;">Xem bài viết</a>
+      </div>
+    {% endif %}
+
+    <div class="notification-actions">
+      <a href="{% url 'notifications' %}" class="btn btn-back">← Quay lại</a>
+      <button class="btn btn-delete" onclick="confirmDelete()"> Xóa</button>
+    </div>
+  </div>
+</div>
+  </main>
+
+  <!-- Footer -->
+  {% include 'footer.html' %}
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('auth-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'login_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal(document.getElementById('forgot-password-modal'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div class="modal-content">
+        {% include 'forgot_password_modal.html' %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/utilities.js' %}?v=20260419c"></script>
+  <script src="{% static 'js/auth.js' %}?v=20260502a"></script>
+  <script>
+    async function confirmDelete() {
+      const confirmed = await showConfirm('Bạn có chắc chắn muốn xóa thông báo này? Hành động này không thể hoàn tác.');
+      if (!confirmed) return;
+      deleteNotification();
+    }
+
+    function deleteNotification() {
+      fetch(`/api/notification/{{ notification.id }}/delete/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showAlert('Thông báo đã được xóa thành công!', 'success');
+          window.location.href = '{% url "notifications" %}';
+        } else {
+          showAlert('Lỗi: ' + (data.error || 'Không thể xóa thông báo'), 'error');
+        }
+      })
+      .catch(error => {
+        showAlert('Lỗi: ' + error.message, 'error');
+      });
+    }
+  </script>
+</body>
+</html>

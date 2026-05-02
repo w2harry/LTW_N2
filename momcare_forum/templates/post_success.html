@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bài viết được đăng - MomCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<style>
+  body { background: linear-gradient(135deg, #f5d8e4 0%, #fce4ec 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .success-container { background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(201, 80, 127, 0.15); max-width: 500px; width: 100%; text-align: center; padding: 60px 40px; }
+  .success-icon { width: 80px; height: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; font-size: 40px; }
+  .success-title { font-size: 28px; font-weight: 700; color: #333; margin-bottom: 10px; }
+  .success-message { color: #666; margin-bottom: 30px; line-height: 1.6; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+  <div class="success-icon">✓</div>
+  <h1 class="success-title">Bài viết được đăng thành công!</h1>
+  <p class="success-message">
+    Cảm ơn bạn đã chia sẻ.<br>
+    Bài viết của bạn đã được đăng lên diễn đàn.
+  </p>
+  <div style="display: flex; gap: 10px; justify-content: center;">
+    <a href="{% url 'post_detail' post.id %}" class="btn-primary" style="padding: 12px 30px; text-decoration: none; display: inline-block;">Xem bài viết</a>
+    <a href="{% url 'forum' %}" class="btn" style="padding: 12px 30px; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; display: inline-block;">Về diễn đàn</a>
+  </div>
+</div>
+{% endblock %}
+

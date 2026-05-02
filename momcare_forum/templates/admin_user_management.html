@@ -1,0 +1,199 @@
+{% load static %}
+{% extends 'admin_base.html' %}
+
+{% block title %}Quản lý Người Dùng - MomCare Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+  .search-input { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+  .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+  .filter-tab { padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; text-decoration: none; color: #333; }
+  .filter-tab.active { background: #c9507f; color: white; border-color: #c9507f; }
+  
+  .user-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 15px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+  th { background: #f9f9f9; font-weight: 600; color: #717c91; font-size: 13px; }
+  td { font-size: 14px; }
+  
+  .user-cell { display: flex; align-items: center; gap: 10px; }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #c9507f, #e8879f); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; }
+  .user-info { display: flex; flex-direction: column; gap: 2px; }
+  .user-name { font-weight: 600; color: #333; }
+  .user-email { font-size: 12px; color: #999; }
+  
+  .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+  .badge-doctor { background: #f8efe1; color: #d9a547; }
+  .badge-admin { background: #eef0f7; color: #5b7aa1; }
+  .badge-user { background: #d1f0f3; color: #0c5c7a; }
+  
+  .action-btn { padding: 6px 12px; border: none; border-radius: 6px; background: #f0f0f0; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+  .action-btn:hover { background: #c9507f; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 30px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h1 style="font-size: 28px; margin: 0; color: #333;">👥 Quản Lý Người Dùng</h1>
+    <div style="font-size: 14px; color: #999;">
+      Tổng: <strong>{{ total_users }}</strong> | Bác Sĩ: <strong>{{ doctors }}</strong>
+    </div>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="search-bar">
+    <form method="get" style="display: flex; gap: 10px; flex: 1;">
+      <input type="text" name="q" class="search-input" placeholder="Tìm theo tên, email..." value="{{ query }}">
+      <button type="submit" style="padding: 10px 20px; background: #c9507f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Tìm Kiếm</button>
+    </form>
+  </div>
+
+  <div class="filter-tabs">
+    <a href="?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">Tất Cả</a>
+    <a href="?filter=doctors" class="filter-tab {% if filter_type == 'doctors' %}active{% endif %}">Bác Sĩ</a>
+    <a href="?filter=admins" class="filter-tab {% if filter_type == 'admins' %}active{% endif %}">Quản Trị</a>
+  </div>
+
+  <!-- Users Table -->
+  <div class="user-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Người Dùng</th>
+          <th>Email</th>
+          <th>Vai Trò</th>
+          <th>Trạng Thái</th>
+          <th>Ngày Tham Gia</th>
+          <th>Hành Động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr data-user-id="{{ user.id }}">
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ user.first_name|first|default:user.username|first }}</div>
+              <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-email">@{{ user.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>
+            {% if user.is_staff %}
+              <span class="badge badge-admin">Quản Trị</span>
+            {% elif user.profile.user_type == 'doctor' %}
+              <span class="badge badge-doctor">
+                ✓ Bác Sĩ đã xác minh
+              </span>
+            {% else %}
+              <span class="badge badge-user">User</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if user.is_active %}
+              <span style="color: #28a745;">✓ Hoạt Động</span>
+            {% else %}
+              <span style="color: #999;">✗ Không Hoạt Động</span>
+            {% endif %}
+          </td>
+          <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+          <td>
+            <div style="display: flex; gap: 5px;">
+              <button class="action-btn" onclick="changeRole({{ user.id }})">🔄 Vai Trò</button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 30px; color: #999;">Không tìm thấy người dùng</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if users.has_other_pages %}
+  <div style="text-align: center; padding: 20px; margin-top: 20px;">
+    {% if users.has_previous %}
+      <a href="?page=1&filter={{ filter_type }}">Trang đầu</a>
+      <a href="?page={{ users.previous_page_number }}&filter={{ filter_type }}">← Trước</a>
+    {% endif %}
+    <span style="margin: 0 10px;">Trang {{ users.number }} / {{ users.paginator.num_pages }}</span>
+    {% if users.has_next %}
+      <a href="?page={{ users.next_page_number }}&filter={{ filter_type }}">Sau →</a>
+      <a href="?page={{ users.paginator.num_pages }}&filter={{ filter_type }}">Trang cuối</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Change Role Modal -->
+<div id="roleModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">Thay Đổi Vai Trò</div>
+    <form id="roleForm">
+      <div class="form-group">
+        <label>Vai Trò</label>
+        <select id="userRole" name="user_type" required>
+          <option value="">-- Chọn vai trò --</option>
+          <option value="user">Người Dùng</option>
+          <option value="doctor">Bác Sĩ</option>
+          <option value="admin">Quản Trị</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Lưu</button>
+        <button type="button" class="btn-cancel" onclick="closeModal('#roleModal')">Hủy</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let currentUserId = null;
+
+  function changeRole(userId) {
+    currentUserId = userId;
+    document.getElementById('roleModal').classList.add('active');
+  }
+
+  function closeModal(selector) {
+    document.querySelector(selector).classList.remove('active');
+  }
+
+  document.getElementById('roleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const userType = document.getElementById('userRole').value;
+    fetch(`/api/admin/user/${currentUserId}/role/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ user_type: userType })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showAlert(data.message, 'success');
+        closeModal('#roleModal');
+        location.reload();
+      } else {
+        showAlert('Lỗi: ' + data.error, 'error');
+      }
+    });
+  });
+
+  window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+      event.target.classList.remove('active');
+    }
+  }
+</script>
+
+{% endblock %}

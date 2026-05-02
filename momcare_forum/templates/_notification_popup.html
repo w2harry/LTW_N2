@@ -1,0 +1,39 @@
+<div class="notification-popup" id="notification-popup">
+  <div class="notif-header">
+    <h3 class="notif-title">Thông báo</h3>
+    <div class="notif-actions">
+      <button class="notif-tabs" type="button">
+        <span class="notif-tab active">Tất cả</span>
+        <span class="notif-tab">Chưa đọc</span>
+      </button>
+      <a href="#" class="notif-mark-read">Đánh dấu tất cả đã đọc</a>
+    </div>
+  </div>
+  <div class="notif-body">
+    {% if recent_notifications %}
+      {% regroup recent_notifications by created_at.date as notif_groups %}
+      {% for group in notif_groups %}
+        <div class="notif-group">
+          <div class="notif-group-label">{{ group.grouper|date:'d/m/Y' }}</div>
+          {% for notif in group.list %}
+            <a href="{% url 'notification_detail' notif.id %}" class="notif-item {% if not notif.is_read %}unread{% endif %}" style="text-decoration:none; color:inherit;">
+              <div class="notif-avatar pink">{{ notif.recipient.first_name|default:notif.recipient.username|slice:":1"|upper }}</div>
+              <div class="notif-content">
+                <p class="notif-text">{{ notif.title }}</p>
+                <span class="notif-time">{{ notif.created_at|timesince }} trước</span>
+              </div>
+              {% if not notif.is_read %}<span class="notif-dot"></span>{% endif %}
+            </a>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="notif-group" style="text-align:center; padding:20px; color:#999;">
+        <p>Bạn không có thông báo nào</p>
+      </div>
+    {% endif %}
+  </div>
+  <div class="notif-footer">
+    <a href="{% url 'notifications' %}" class="notif-view-more">Xem tất cả thông báo</a>
+  </div>
+</div>

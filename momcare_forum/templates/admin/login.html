@@ -1,0 +1,185 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% trans 'Admin đăng nhập' %} | MomCare</title>
+  <style>
+    :root {
+      --bg-1: #fff3f7;
+      --bg-2: #ffe7ef;
+      --card: #ffffff;
+      --text: #2a2733;
+      --muted: #766f84;
+      --border: #f1cddd;
+      --primary: #cf4e83;
+      --primary-hover: #b93f71;
+      --shadow: 0 24px 60px rgba(120, 45, 79, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at 20% 10%, var(--bg-2) 0%, transparent 35%),
+                  radial-gradient(circle at 90% 90%, #ffdbe9 0%, transparent 30%),
+                  linear-gradient(160deg, #fff8fb 0%, var(--bg-1) 100%);
+      color: var(--text);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 430px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      color: #2b2234;
+      text-align: center;
+    }
+
+    .subtitle {
+      margin: 8px 0 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .error {
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #f1b6cb;
+      background: #fff1f6;
+      color: #a3285a;
+      font-size: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #433b51;
+    }
+
+    .field input {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fffafc;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(207, 78, 131, 0.15);
+      background: #fff;
+    }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 6px;
+      height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .submit-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .action-link {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      border-radius: 10px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      color: #524a61;
+      background: #fff;
+    }
+
+    .action-link:hover {
+      border-color: #eab5ca;
+      color: #352f43;
+      background: #fff8fb;
+    }
+  </style>
+</head>
+<body>
+  <main class="login-card">
+    <h1 class="title">Admin MomCare</h1>
+    <p class="subtitle">Đăng nhập để quản trị hệ thống</p>
+
+    {% if form.errors and not form.non_field_errors %}
+      <div class="error">{% trans "Vui lòng kiểm tra lại tên đăng nhập và mật khẩu." %}</div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="error">
+        {% for error in form.non_field_errors %}
+          {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form action="{{ app_path }}" method="post" id="login-form">
+      {% csrf_token %}
+      <div class="field">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+      </div>
+      <div class="field">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+      </div>
+      {% if next %}
+      <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
+      <button type="submit" class="submit-btn">Đăng nhập</button>
+    </form>
+
+    <div class="actions">
+      <a class="action-link" href="/">Về trang chủ</a>
+    </div>
+  </main>
+</body>
+</html>

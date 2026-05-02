@@ -1,0 +1,271 @@
+    let reviewPopupPostId = null;
+    let editingVerificationId = null;
+
+    function resetReviewReasons() {
+      document.querySelectorAll('#review-reason-modal input[name="review_reason"]').forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      const noteTextarea = document.getElementById('review-note-textarea');
+      if (noteTextarea) {
+        noteTextarea.value = '';
+      }
+    }
+
+    function togglePostVerifiedState(postId, isVerified) {
+      const triggers = document.querySelectorAll(`.verify-trigger[data-post-id="${postId}"]`);
+      triggers.forEach((trigger) => {
+        if (isVerified) {
+          trigger.classList.add('verified');
+        } else {
+          trigger.classList.remove('verified');
+        }
+      });
+
+      const statusNode = document.getElementById(`review-status-${postId}`);
+      if (statusNode) {
+        if (isVerified) {
+          statusNode.classList.add('show');
+          let statusText = statusNode.querySelector('.review-approved-text');
+          if (!statusText) {
+            statusText = document.createElement('span');
+            statusText.className = 'review-approved-text';
+            statusText.style.fontSize = '12px';
+            statusNode.appendChild(statusText);
+          }
+          statusText.textContent = 'Đã được kiểm duyệt bởi chuyên gia';
+        } else {
+          statusNode.classList.remove('show');
+        }
+      }
+    }
+
+    function renderVerificationHistory(payload) {
+      const post = payload.post || {};
+      const records = payload.verifications || [];
+
+      const titleEl = document.getElementById('review-post-title');
+      const contentEl = document.getElementById('review-post-content');
+      const summaryEl = document.getElementById('review-status-summary');
+      const historyEl = document.getElementById('review-history-list');
+      const emptyEl = document.getElementById('review-empty-state');
+      const addActionEl = document.getElementById('review-add-action');
+      const addBtn = document.getElementById('btn-add-review');
+
+      titleEl.textContent = post.title || '';
+      contentEl.textContent = post.content || '';
+      summaryEl.textContent = post.is_verified
+        ? `Trạng thái: Đã kiểm duyệt (${post.verified_count || 0} bác sĩ)`
+        : 'Trạng thái: Chưa được kiểm duyệt';
+
+      historyEl.innerHTML = '';
+
+      if (!records.length) {
+        emptyEl.style.display = 'block';
+      } else {
+        emptyEl.style.display = 'none';
+        records.forEach((item) => {
+          const card = document.createElement('div');
+          card.style.border = '1px solid #ebd7df';
+          card.style.borderRadius = '10px';
+          card.style.padding = '10px 12px';
+          card.style.background = '#fff';
+
+          const reasons = (item.reason_labels_full || item.reason_labels || []).join(', ') || 'Không có lý do cụ thể';
+          const note = item.verification_note || 'Không có ghi chú';
+
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; gap:8px; margin-bottom:6px;">
+              <strong style="font-size:14px; color:#1f2430;">${item.doctor_name}</strong>
+              <span style="font-size:12px; color:#7b8395;">${item.verified_at || ''}</span>
+            </div>
+            <div style="font-size:13px; color:#4b5366; margin-bottom:4px;"><strong>Lý do:</strong> ${reasons}</div>
+            <div style="font-size:13px; color:#4b5366;"><strong>Ghi chú:</strong> ${note}</div>
+          `;
+
+          if (item.can_edit) {
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.gap = '8px';
+            actions.style.marginTop = '8px';
+
+            const editBtn = document.createElement('button');
+            editBtn.type = 'button';
+            editBtn.className = 'modal-btn';
+            editBtn.style.background = '#f6eef3';
+            editBtn.style.color = '#b3567d';
+            editBtn.style.border = '1px solid #b3567d';
+            editBtn.textContent = 'Chỉnh sửa';
+            editBtn.addEventListener('click', () => {
+              editingVerificationId = item.id;
+              resetReviewReasons();
+              (item.reason_codes || []).forEach((code) => {
+                const input = document.querySelector(`#review-reason-modal input[name="review_reason"][value="${code}"]`);
+                if (input) {
+                  input.checked = true;
+                }
+              });
+              const noteText = document.getElementById('review-note-textarea');
+              if (noteText) {
+                noteText.value = item.verification_note || '';
+              }
+              openModal('review-reason-modal');
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'modal-btn';
+            deleteBtn.style.background = '#fff';
+            deleteBtn.style.color = '#d32f2f';
+            deleteBtn.style.border = '1px solid #d32f2f';
+            deleteBtn.textContent = 'Xóa';
+            deleteBtn.addEventListener('click', async () => {
+              const payload = new FormData();
+              payload.append('verification_id', item.id);
+              const response = await fetch(`/post/${reviewPopupPostId}/unverify/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: payload,
+              });
+              const contentType = response.headers.get('content-type') || '';
+              const data = contentType.includes('application/json')
+                ? await response.json()
+                : { success: false, error: 'Phản hồi không hợp lệ từ máy chủ.' };
+              if (!response.ok || !data.success) {
+                showAlert(data.error || 'Không thể xóa kiểm duyệt.', 'error');
+                return;
+              }
+              await openVerificationPopup(reviewPopupPostId);
+              showAlert('Đã xóa lượt kiểm duyệt.', 'success');
+            });
+
+            actions.appendChild(editBtn);
+            actions.appendChild(deleteBtn);
+            card.appendChild(actions);
+          }
+
+          historyEl.appendChild(card);
+        });
+      }
+
+      addActionEl.style.display = payload.can_verify ? 'block' : 'none';
+      addBtn.onclick = () => {
+        editingVerificationId = null;
+        resetReviewReasons();
+        openModal('review-reason-modal');
+      };
+
+      togglePostVerifiedState(post.id, Boolean(post.is_verified));
+    }
+
+    async function openVerificationPopup(postId) {
+      reviewPopupPostId = postId;
+      const response = await fetch(`/api/post/${postId}/verification-history/`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+
+      let data = null;
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        showAlert('Không thể tải popup kiểm duyệt. Vui lòng tải lại trang.', 'error');
+        return;
+      }
+
+      if (!response.ok || !data.success) {
+        showAlert(data.error || 'Không tải được thông tin kiểm duyệt.', 'error');
+        return;
+      }
+      renderVerificationHistory(data);
+      openModal('review-detail-modal');
+    }
+
+    document.querySelectorAll('.verify-trigger[data-post-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const postId = button.dataset.postId;
+        if (!postId) {
+          return;
+        }
+        openVerificationPopup(postId);
+      });
+    });
+
+    document.querySelectorAll('.review-approved[data-post-id]').forEach((statusNode) => {
+      const postId = statusNode.dataset.postId;
+      if (!postId) {
+        return;
+      }
+
+      statusNode.style.cursor = 'pointer';
+
+      statusNode.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openVerificationPopup(postId);
+      });
+
+      statusNode.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          event.stopPropagation();
+          openVerificationPopup(postId);
+        }
+      });
+    });
+
+    document.getElementById('close-review-modal').addEventListener('click', () => {
+      closeModal(document.getElementById('review-reason-modal'));
+      resetReviewReasons();
+      editingVerificationId = null;
+    });
+
+    document.getElementById('cancel-review-modal').addEventListener('click', () => {
+      closeModal(document.getElementById('review-reason-modal'));
+      resetReviewReasons();
+      editingVerificationId = null;
+    });
+
+    document.getElementById('confirm-review-modal').addEventListener('click', async () => {
+      const selectedReasons = Array.from(
+        document.querySelectorAll('#review-reason-modal input[name="review_reason"]:checked')
+      ).map((input) => input.value);
+
+      if (selectedReasons.length === 0 || !reviewPopupPostId) {
+        showAlert('Vui lòng chọn ít nhất một lý do kiểm duyệt.', 'error');
+        return;
+      }
+
+      const noteText = document.getElementById('review-note-textarea')?.value?.trim() || '';
+      const payload = new FormData();
+      selectedReasons.forEach((reasonCode) => payload.append('verification_reasons', reasonCode));
+      if (noteText) {
+        payload.append('verification_note', noteText);
+      }
+      if (editingVerificationId) {
+        payload.append('verification_id', editingVerificationId);
+      }
+
+      const response = await fetch(`/post/${reviewPopupPostId}/verify/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: payload,
+      });
+      const contentType = response.headers.get('content-type') || '';
+      const data = contentType.includes('application/json')
+        ? await response.json()
+        : { success: false, error: 'Phản hồi không hợp lệ từ máy chủ.' };
+
+      if (!response.ok || !data.success) {
+        showAlert(data.error || 'Không thể kiểm duyệt bài viết.', 'error');
+        return;
+      }
+
+      closeModal(document.getElementById('review-reason-modal'));
+      resetReviewReasons();
+      editingVerificationId = null;
+      await openVerificationPopup(reviewPopupPostId);
+      showAlert('Cập nhật kiểm duyệt thành công.', 'success');
+    });
